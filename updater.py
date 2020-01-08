@@ -1,9 +1,9 @@
 import m3u8
-from data import Qualities, themes_names
-from channel import Channel
-from database import Database
-from utils import Utils
-from playlist import Playlist
+from updater.data import Qualities, themes_names
+from updater.channel import Channel
+from updater.database import Database
+from updater.utils import Utils
+from updater.playlist import Playlist
 
 # Connecting to database
 db = Database()

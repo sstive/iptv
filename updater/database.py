@@ -1,9 +1,9 @@
 import pymysql
-from source import Source
-from channel import Channel
-from data import DB_host, DB_name, DB_pass, DB_user, DB_port, DB_tables, protocols
-from utils import Utils
-from playlist import Playlist
+from updater.source import Source
+from updater.channel import Channel
+from updater.data import DB_host, DB_name, DB_pass, DB_user, DB_port, DB_tables, protocols
+from updater.utils import Utils
+from updater.playlist import Playlist
 
 
 class Database:

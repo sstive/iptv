@@ -40,6 +40,19 @@ class Database:
             ret.append(s[key])
         return ret
 
+    @staticmethod
+    def __db_to_channel__(db_data):
+        name = Utils.to_eng(db_data['name'], True)
+        channel = Channel(name, db_data['theme'], db_data['id'])
+
+        # Adding urls to channel
+        channel.add_str_urls(db_data['sd'], 0)
+        channel.add_str_urls(db_data['hd'], 1)
+        channel.add_str_urls(db_data['fhd'], 2)
+        channel.add_str_urls(db_data['uhd'], 3)
+
+        return channel
+
     def __check_tables__(self):
         print('Checking tables in database...')
 
@@ -69,7 +82,7 @@ class Database:
             return False
 
         with self.con.cursor() as cur:
-            cur.execute(f'INSERT INTO sources (url, protocol) VALUES ({source.host}, {source.protocol})')
+            cur.execute(f'INSERT INTO sources (url, protocol) VALUES (\'{source.host}\', {source.protocol})')
 
         self.con.commit()
         print('Source added!')
@@ -84,44 +97,23 @@ class Database:
             cur.execute('SELECT * FROM sources')
             src = cur.fetchall()
 
-        for s in src:
+        for args in src:
             if resp == 'url':
-                sources.append(protocols[s['protocol']] + '://' + s['url'])
+                sources.append(protocols[args['protocol']] + '://' + args['url'])
             else:
-                sources.append(Source(s['id'], s['protocol'], s['url']))
+                sources.append(Source(id=args['id'], protocol=args['protocol'], host=args['url'], unavailable=args['unavailable']))
 
         print('Sources received!')
         return sources
 
     def update_sources(self, sources):
-        if len(sources) == 0:
-            return 0
-
-        bad_count = 0
-
-        # TODO: Refactor Adding
         print('Updating sources...', end=' ')
-        inc = 'UPDATE sources SET unavailable = unavailable + 1 WHERE '
-        res = 'UPDATE sources SET unavailable = 0 WHERE '
 
         for src in sources:
             with self.con.cursor() as cur:
-                cur.execute(f'UPDATE sources SET channels={src.channels}, ch_available={src.ch_available} WHERE id={src.id}')
-            self.con.commit()
-            if src.ch_available < 20 or not src.src_available:
-                inc += f'id = {src.id} OR '
-                res += f'(NOT id = {src.id}) AND '
-                bad_count += 1
+                cur.execute(f'UPDATE sources SET channels={src.channels}, ch_available={src.ch_available}, unavailable={src.unavailable} WHERE id={src.id}')
+                cur.execute('DELETE FROM sources WHERE unavailable >= 10 OR ch_available < 5')
 
-        inc = inc[0: -4]
-        res = res[0: -5]
-
-        with self.con.cursor() as cur:
-            if bad_count > 0:
-                cur.execute(inc)
-                cur.execute(res)
-            cur.execute('DELETE FROM sources WHERE unavailable >= 10')
-            # cur.execute('DELETE FROM sources WHERE ch_available < 5')
         self.con.commit()
         print('Done!')
 
@@ -146,15 +138,19 @@ class Database:
 
         for ch in chs:
             name = Utils.to_eng(ch['name'], True)
-            channel = Channel(name, ch['theme'], ch['id'])
+            channels[name] = self.__db_to_channel__(ch)
 
-            channel.add_str_urls(ch['sd'], 0)
-            channel.add_str_urls(ch['hd'], 1)
-            channel.add_str_urls(ch['fhd'], 2)
-            channel.add_str_urls(ch['uhd'], 3)
-
-            channels[name] = channel
         return channels
+
+    def get_channel(self, **params):
+        with self.con.cursor() as cur:
+            if 'id' in params.keys():
+                cur.execute(f'SELECT * FROM channels WHERE id = {params["id"]}')
+            elif 'name' in params.keys():
+                cur.execute(f'SELECT * FROM channels WHERE name = \'{params["name"]}\'')
+            else:
+                return None
+            return self.__db_to_channel__(cur.fetchone())
 
     def get_playlists(self):
         playlists = []

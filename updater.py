@@ -20,11 +20,11 @@ for src in sources:
         print(pl)
     except Exception as e:
         print(f'\t{e}')
-        src.src_available = False
+        src.add_unavailable_days()
         continue
 
+    src.reset_unavailable_days()
     src.channels = len(pl.segments)
-    src.available = 0
 
     # Working with channels
     for c in pl.segments:
@@ -94,6 +94,6 @@ for pl in playlists:
             seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
             playlist.add_segment(seg)
 
-    playlist.dump(f'/playlists/{pl.name}.m3u8')
+    playlist.dump(f'playlists/{pl.name}.m3u8')
 
 print('Done!')

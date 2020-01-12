@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Add source</title>
+    </head>
+    <body>
+        <h1>Add source</h1>
+
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+
+        <form action="" method="post">
+            <p>
+                <label for="url">URL</label>
+                <br>
+                <input type="text" name="url">
+            </p>
+            <p>
+                <label for="password">Password</label>
+                <br>
+                <input type="password" name="password">
+            </p>
+            <p>
+                <input type="submit">
+            </p>
+        </form>
+    </body>
+</html>

@@ -94,6 +94,6 @@ for pl in playlists:
             seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
             playlist.add_segment(seg)
 
-    playlist.dump(f'../playlists/{pl.name}.m3u8')
+    playlist.dump(f'/playlists/{pl.name}.m3u8')
 
 print('Done!')

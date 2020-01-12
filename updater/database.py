@@ -9,14 +9,23 @@ from updater.playlist import Playlist
 class Database:
 
     def __init__(self):
-        self.con = pymysql.connect(
-            host=DB_host,
-            db=DB_name,
-            user=DB_user,
-            password=DB_pass,
-            port=DB_port,
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        if DB_port:
+            self.con = pymysql.connect(
+                host=DB_host,
+                db=DB_name,
+                user=DB_user,
+                password=DB_pass,
+                port=DB_port,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+        else:
+            self.con = pymysql.connect(
+                host=DB_host,
+                db=DB_name,
+                user=DB_user,
+                password=DB_pass,
+                cursorclass=pymysql.cursors.DictCursor
+            )
         print('Connection with database started!')
         self.__check_tables__()
 

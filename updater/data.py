@@ -1,9 +1,14 @@
+import os
+
 # Database #
-DB_host = 'localhost'
-DB_name = 'iptv'
-DB_user = 'iptv'
-DB_pass = '1234567890'
-DB_port = 3306
+DB_host = os.environ['DB_HOST']
+DB_name = os.environ['DB_DATABASE']
+DB_user = os.environ['DB_USER']
+DB_pass = os.environ['DB_PASSWORD']
+if 'DB_PORT' in os.environ.keys():
+    DB_port = os.environ['DB_PORT']
+else:
+    DB_port = False
 
 DB_tables = {
     'channels': 'CREATE TABLE channels(id SMALLINT unsigned AUTO_INCREMENT UNIQUE NOT NULL, name VARCHAR(150) UNIQUE NOT\

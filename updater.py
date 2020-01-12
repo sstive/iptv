@@ -8,7 +8,7 @@ from updater.playlist import Playlist
 # Connecting to database
 db = Database()
 
-sources = []#db.get_sources()
+sources = db.get_sources()
 
 channels = db.get_channels()
 

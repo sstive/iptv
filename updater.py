@@ -10,7 +10,7 @@ from updater.playlist import Playlist
 db = Database()
 
 # Getting sources
-sources = []#db.get_sources()
+sources = db.get_sources()
 
 # Getting channels
 channels = db.get_channels()

@@ -50,6 +50,7 @@ class Channel:
             return ','.join(self.urls_uhd)
 
     def add_url(self, url, quality=0):
+        # TODO: uncomment
         # Checking connection
         #if not Utils.check_connection(url):
         #    return False

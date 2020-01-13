@@ -32,7 +32,7 @@ class Utils:
 
     @staticmethod
     def to_eng(text, decode=False):
-        dict = {
+        letters = {
             # Lowercase
             'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': '$0', 'ж': '$1', 'з': 'z', 'и': 'i',
             'й': '$2', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
@@ -48,13 +48,13 @@ class Utils:
         new = []
 
         if decode:
-            for k, v in dict.items():
+            for k, v in letters.items():
                 text = text.replace('^' + v, k)
             return text
 
         for s in text:
-            if s in dict.keys():
-                new.append('^' + dict[s])
+            if s in letters.keys():
+                new.append('^' + letters[s])
             else:
                 new.append(s)
         return ''.join(new)

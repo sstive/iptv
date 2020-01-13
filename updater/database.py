@@ -1,7 +1,8 @@
+import os
 import pymysql
 from updater.source import Source
 from updater.channel import Channel
-from updater.data import DB_host, DB_name, DB_pass, DB_user, DB_port, DB_tables, protocols
+from updater.data import DB_tables, protocols
 from updater.utils import Utils
 from updater.playlist import Playlist
 
@@ -9,29 +10,31 @@ from updater.playlist import Playlist
 class Database:
 
     def __init__(self):
-        if DB_port:
+        if 'DB_PORT' in os.environ.keys():
             self.con = pymysql.connect(
-                host=DB_host,
-                db=DB_name,
-                user=DB_user,
-                password=DB_pass,
-                port=DB_port,
+                host=os.environ['DB_HOST'],
+                db=os.environ['DB_DATABASE'],
+                user=os.environ['DB_USER'],
+                password=os.environ['DB_PASSWORD'],
+                port=os.environ['DB_PORT'],
                 cursorclass=pymysql.cursors.DictCursor
             )
         else:
             self.con = pymysql.connect(
-                host=DB_host,
-                db=DB_name,
-                user=DB_user,
-                password=DB_pass,
+                host=os.environ['DB_HOST'],
+                db=os.environ['DB_DATABASE'],
+                user=os.environ['DB_USER'],
+                password=os.environ['DB_PASSWORD'],
                 cursorclass=pymysql.cursors.DictCursor
             )
-        print('Connection with database started!')
+        print('\nConnection with database started!')
+
+        self.__drop_database__()
         self.__check_tables__()
 
     def __del__(self):
         self.con.close()
-        print('Connection with database closed!')
+        print('\nConnection with database closed!')
 
     @staticmethod
     def __format_response__(response, key):
@@ -42,16 +45,39 @@ class Database:
 
     @staticmethod
     def __db_to_channel__(db_data):
-        name = Utils.to_eng(db_data['name'], True)
+        # TODO: toeng
+        #name = Utils.to_eng(db_data['name'], True)
+        name = db_data['name']
+
         channel = Channel(name, db_data['theme'], db_data['id'])
 
         # Adding urls to channel
         channel.add_str_urls(db_data['sd'], 0)
         channel.add_str_urls(db_data['hd'], 1)
         channel.add_str_urls(db_data['fhd'], 2)
-        channel.add_str_urls(db_data['uhd'], 3)
+        channel.add_str_urls(db_data['qhd'], 3)
+        channel.add_str_urls(db_data['uhd'], 4)
 
         return channel
+
+    def __drop_database__(self):
+        if 'DROP_DATABASE' in os.environ.keys():
+            print('\nAre you sure want to drop database? (y/n)')
+            if input().lower() != 'y':
+                return
+
+            print('Dropping tables...')
+
+            with self.con.cursor() as cur:
+                cur.execute('SHOW TABLES')
+                tables = self.__format_response__(cur.fetchall(), f"Tables_in_{os.environ['DB_DATABASE']}")
+
+                for table in tables:
+                    print(f'\t{table}...', end=' ')
+                    cur.execute(f'DROP TABLE {table};')
+                    print(f'Done!')
+            self.con.commit()
+            print('Done!')
 
     def __check_tables__(self):
         print('Checking tables in database...')
@@ -61,13 +87,22 @@ class Database:
             cur.execute('SHOW TABLES')
 
             # Existing tables in database
-            tables = self.__format_response__(cur.fetchall(), f'Tables_in_{DB_name}')
+            tables = self.__format_response__(cur.fetchall(), f"Tables_in_{os.environ['DB_DATABASE']}")
 
             # Looking for missing tables
             for table in DB_tables:
                 if table not in tables:
-                    print(f'\tTable {table} not exists in database! Creating...')
+                    print(f'\tTable {table} not exists in database! Creating...', end=' ')
                     cur.execute(DB_tables[table])
+                    print('Done!')
+
+            if 'playlists_forms' not in tables:
+                print('Adding default playlist')
+                cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
+"^P^e^r^v^$8^$2 ^k^a^n^a^l,^R^o^s^s^i^@2 1,^M^A^T^~4!,^N^T^V,^P^@2^t^$8^$2 ^k^a^n^a^l,^R^o^s^s^i^@2 ^K,^T^V ^~3^e^n^t^r,\
+^K^A^R^U^S^E^L^~7,^R^o^s^s^i^@2 24,^O^T^R,^R^E^N ^T^V,^S^p^a^s,^S^T^S,^D^o^m^a^$5^n^i^$2,^T^V-3,^P^@2^t^n^i^$3^a,\
+^Z^v^e^z^d^a,^M^i^r,^T^N^T,^M^U^Z ^T^V", 2)')
+            self.con.commit()
 
         print('Database checked!')
 
@@ -121,11 +156,10 @@ class Database:
         print(f'Adding {len(channels)} channels to database...', end=' ')
         for ch in channels.values():
             with self.con.cursor() as cur:
-                cur.execute(f'INSERT INTO channels (name, theme, sd, hd, fhd, uhd) VALUES (\'{ch.label}\', {ch.theme}, '
-                            f'"{ch.get_str_urls(0)}", "{ch.get_str_urls(1)}", "{ch.get_str_urls(2)}", '
-                            f'"{ch.get_str_urls(4)}") ON DUPLICATE KEY UPDATE name=\'{ch.label}\', theme={ch.theme}, '
-                            f'sd="{ch.get_str_urls(0)}", hd="{ch.get_str_urls(1)}", '
-                            f'fhd="{ch.get_str_urls(2)}", uhd="{ch.get_str_urls(3)}"')
+                cur.execute(f'INSERT INTO channels (name, theme, sd, hd, fhd, qhd, uhd) VALUES (\'{ch.label}\', {ch.theme},\
+                    "{ch.get_str_urls(0)}", "{ch.get_str_urls(1)}", "{ch.get_str_urls(2)}", "{ch.get_str_urls(3)}", "{ch.get_str_urls(4)}"\
+                    ) ON DUPLICATE KEY UPDATE name=\'{ch.label}\', theme={ch.theme}, sd="{ch.get_str_urls(0)}",\
+                    hd="{ch.get_str_urls(1)}", fhd="{ch.get_str_urls(2)}", qhd="{ch.get_str_urls(3)}", uhd="{ch.get_str_urls(4)}"')
             self.con.commit()
         print('Done!')
 
@@ -137,7 +171,11 @@ class Database:
             chs = cur.fetchall()
 
         for ch in chs:
-            name = Utils.to_eng(ch['name'], True)
+
+            # TODO: toeng
+            # name = Utils.to_eng(ch['name'], True)
+            name = ch['name']
+
             channels[name] = self.__db_to_channel__(ch)
 
         return channels
@@ -152,11 +190,19 @@ class Database:
                 return None
             return self.__db_to_channel__(cur.fetchone())
 
-    def get_playlists(self):
-        playlists = []
+    def get_playlists_forms(self):
+        forms = []
         with self.con.cursor() as cur:
-            cur.execute('SELECT * FROM playlists')
+            cur.execute('SELECT * FROM playlists_forms')
             for pl in cur.fetchall():
-                playlists.append(Playlist(pl['name'], pl['quality'], pl['channels'].split(',')))
+                # TODO: toeng
+                # forms.append(Playlist(pl['id'], pl['name'], pl['quality'],
+                #                      map(lambda name: Utils.to_eng(name, True).strip(), pl['channels'].split(','))))
+                forms.append(Playlist(pl['id'], pl['name'], pl['quality'],
+                                      map(str.strip, pl['channels'].split(','))))
+        return forms
 
-        return playlists
+    def save_playlist(self, id, data):
+        with self.con.cursor() as cur:
+            cur.execute(f'INSERT INTO playlists (id, data) VALUES ({id}, "{data}") ON DUPLICATE KEY UPDATE data="{data}"')
+        self.con.commit()

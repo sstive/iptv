@@ -22,7 +22,7 @@ def get_playlist():
 def add_source():
     message = ''
     if request.method == 'POST':
-        url = request.form.get('url')
+        url = request.form.get('url').replace(' ', '')
         password = request.form.get('password')
 
         if password == app.config['SECRET_KEY']:

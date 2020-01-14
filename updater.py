@@ -65,9 +65,10 @@ for src in sources:
 
         # Saving to array
         channels[title] = channel
-    db = Database ((
+    db = Database ()
     # Saving to database
     db.add_channels(channels)
+    del db
 
 db = Database ()
 db.update_sources(sources)

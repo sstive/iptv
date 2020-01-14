@@ -9,7 +9,7 @@ from updater.playlist import Playlist
 
 class Database:
 
-    def __init__(self):
+    def __init__(self, from_web=False):
         if 'DB_PORT' in os.environ.keys():
             self.con = pymysql.connect(
                 host=os.environ['DB_HOST'],
@@ -29,8 +29,9 @@ class Database:
             )
         print('\nConnection with database started!')
 
-        self.__drop_database__()
-        self.__check_tables__()
+        if not from_web:
+            self.__drop_database__()
+            self.__check_tables__()
 
     def __del__(self):
         self.con.close()
@@ -45,8 +46,7 @@ class Database:
 
     @staticmethod
     def __db_to_channel__(db_data):
-        # TODO: toeng
-        #name = Utils.to_eng(db_data['name'], True)
+
         name = db_data['name']
 
         channel = Channel(name, db_data['theme'], db_data['id'])
@@ -99,9 +99,7 @@ class Database:
             if 'playlists_forms' not in tables:
                 print('Adding default playlist')
                 cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
-"^P^e^r^v^$8^$2 ^k^a^n^a^l,^R^o^s^s^i^@2 1,^M^A^T^~4!,^N^T^V,^P^@2^t^$8^$2 ^k^a^n^a^l,^R^o^s^s^i^@2 ^K,^T^V ^~3^e^n^t^r,\
-^K^A^R^U^S^E^L^~7,^R^o^s^s^i^@2 24,^O^T^R,^R^E^N ^T^V,^S^p^a^s,^S^T^S,^D^o^m^a^$5^n^i^$2,^T^V-3,^P^@2^t^n^i^$3^a,\
-^Z^v^e^z^d^a,^M^i^r,^T^N^T,^M^U^Z ^T^V", 2)')
+"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,Пятница,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
             self.con.commit()
 
         print('Database checked!')
@@ -171,11 +169,7 @@ class Database:
             chs = cur.fetchall()
 
         for ch in chs:
-
-            # TODO: toeng
-            # name = Utils.to_eng(ch['name'], True)
             name = ch['name']
-
             channels[name] = self.__db_to_channel__(ch)
 
         return channels
@@ -195,14 +189,19 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute('SELECT * FROM playlists_forms')
             for pl in cur.fetchall():
-                # TODO: toeng
-                # forms.append(Playlist(pl['id'], pl['name'], pl['quality'],
-                #                      map(lambda name: Utils.to_eng(name, True).strip(), pl['channels'].split(','))))
-                forms.append(Playlist(pl['id'], pl['name'], pl['quality'],
-                                      map(str.strip, pl['channels'].split(','))))
+                forms.append(Playlist(pl['id'], pl['name'], pl['quality'], map(str.strip, pl['channels'].split(','))))
         return forms
 
     def save_playlist(self, id, data):
         with self.con.cursor() as cur:
             cur.execute(f'INSERT INTO playlists (id, data) VALUES ({id}, "{data}") ON DUPLICATE KEY UPDATE data="{data}"')
         self.con.commit()
+
+    def get_playlist(self, **params):
+        if 'id' not in params.keys():
+            return 404
+
+        with self.con.cursor() as cur:
+            cur.execute(f"SELECT * FROM playlists WHERE id = {params['id']}")
+            result = cur.fetchone()
+        return result['data']

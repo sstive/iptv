@@ -6,16 +6,16 @@ from urllib.error import URLError
 class Utils:
 
     @staticmethod
-    def get(url, timeout=5):
+    def get(url, timeout=5, err_resp=False):
         print(f'Getting url: {url}')
         try:
             return urllib.request.urlopen(url, timeout=timeout).read().decode('utf-8')
         except URLError as err:
             print(f'\t{err}: {url}\n')
-            return False
+            return err_resp
         except Exception as e:
             print(f'\t{e}: {url}\n')
-            return False
+            return err_resp
 
     @staticmethod
     def check_connection(url):

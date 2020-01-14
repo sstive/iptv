@@ -1,8 +1,8 @@
 import os
-from flask import Flask, send_from_directory, request, render_template
+from flask import Flask, request, render_template, Response
+from werkzeug.utils import redirect
 from updater.database import Database
 from updater.source import Source
-
 
 app = Flask(__name__, template_folder='web')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -10,12 +10,13 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 @app.route('/playlist')
 def get_playlist():
-    pl = 'default.m3u8'
-    if request.args.get('pl'):
-        pl = request.args.get('pl') + '.m3u8'
-        if not os.path.isfile(pl):
-            pl = 'default.m3u8'
-    return send_from_directory(directory='playlists', filename=pl)
+    db = Database(True)
+    data = ''
+    if request.args.get('id'):
+        data = db.get_playlist(id=request.args.get('id'))
+    else:
+        data = db.get_playlist(id=0)
+    return Response(data, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
 
 
 @app.route('/addsource', methods=['post', 'get'])
@@ -26,7 +27,7 @@ def add_source():
         password = request.form.get('password')
 
         if password == app.config['SECRET_KEY']:
-            db = Database()
+            db = Database(True)
             source = Source(url=url)
             db.add_source(source)
             message = 'Success'
@@ -38,4 +39,12 @@ def add_source():
 
 @app.route('/channel')
 def channel():
-    pass
+    if request.args.get('id') and request.args.get('q'):
+        db = Database()
+        url = db.get_channel(id=request.args.get('id')).get_url(int(request.args.get('q')))
+        if type(url) == int:
+            return 404
+        return redirect(url)
+    else:
+        # TODO: picture
+        return 404

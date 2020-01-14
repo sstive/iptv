@@ -1,4 +1,5 @@
 import m3u8
+import os
 from updater.data import Qualities, themes_names
 from updater.channel import Channel
 from updater.database import Database
@@ -69,20 +70,23 @@ for src in sources:
 db.update_sources(sources)
 
 print('Updating playlists...', end=' ')
-
-# TODO: add comments
-
+# Getting forms
 forms = db.get_playlists_forms()
 
+# Getting channels id
+channels.clear()
+channels = db.get_channels()
+
+# Adding default form
 forms.append(Playlist(0, 'default', 1, []))
 
 for form in forms:
     playlist = m3u8.loads('#EXTM3U')
     for ch in form.channels:
-        url = 'http://iptv.pythonanywhere.com/pictures?pic=not_found'
+        url = f"{os.environ.get('URL')}/pictures?pic=not_found"
         theme = 0
         if ch in channels.keys():
-            url = f'http://iptv.pythonanywhere.com/channel?id={channels[ch].id}&q={form.quality}'
+            url = f"{os.environ.get('URL')}/channel?id={channels[ch].id}&q={form.quality}"
             theme = themes_names[channels[ch].theme]
         seg = m3u8.Segment(title=ch, duration=-1, uri=url)
         seg.add_part(f'#EXTGRP: {theme}')
@@ -91,7 +95,7 @@ for form in forms:
     for k in channels.keys():
         ch = channels[k]
         if ch not in form.channels:
-            seg = m3u8.Segment(title=ch.name, duration=-1, uri=f'http://iptv.pythonanywhere.com/channel?id={ch.id}&q={form.quality}')
+            seg = m3u8.Segment(title=ch.name, duration=-1, uri=f"{os.environ.get('URL')}/channel?id={ch.id}&q={form.quality}")
             seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
             playlist.add_segment(seg)
 

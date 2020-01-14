@@ -8,8 +8,6 @@ class Channel:
         self.id = id
         self.name = name
 
-        # TODO: toeng
-        # self.label = Utils.to_eng(name)
         self.label = name
 
         self.theme = theme
@@ -50,10 +48,9 @@ class Channel:
             return ','.join(self.urls_uhd)
 
     def add_url(self, url, quality=0):
-        # TODO: uncomment
         # Checking connection
-        #if not Utils.check_connection(url):
-        #    return False
+        if not Utils.check_connection(url):
+            return False
 
         if quality == 0:
             self.urls_sd.append(url)
@@ -79,4 +76,4 @@ class Channel:
         for i in range(quality, -1, -1):
             for url in urls[i]:
                 return url
-        return False
+        return 404

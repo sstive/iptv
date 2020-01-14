@@ -57,7 +57,7 @@ for src in sources:
             channel = Channel(title)
 
         # Adding url to channel
-        if not channel.add_url(c.uri, quality):
+        if not channel.add_url(c.uri, quality, True):
             print(f'\r ({form.segments.index(c)}/{src.channels})')
             continue
 

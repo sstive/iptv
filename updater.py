@@ -65,12 +65,12 @@ for src in sources:
 
         # Saving to array
         channels[title] = channel
-    db = Database ()
+    db = Database (True)
     # Saving to database
     db.add_channels(channels)
     del db
 
-db = Database ()
+db = Database (True)
 db.update_sources(sources)
 
 print('Updating playlists...', end=' ')

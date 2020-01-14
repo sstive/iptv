@@ -16,6 +16,8 @@ sources = db.get_sources()
 # Getting channels
 channels = db.get_channels()
 
+del db
+
 print('Updating channels...')
 for src in sources:
     # Opening playlist
@@ -63,10 +65,11 @@ for src in sources:
 
         # Saving to array
         channels[title] = channel
-
+    db = Database ((
     # Saving to database
     db.add_channels(channels)
 
+db = Database ()
 db.update_sources(sources)
 
 print('Updating playlists...', end=' ')

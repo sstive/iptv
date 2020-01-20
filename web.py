@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, render_template, Response
+import collections
+from flask import Flask, request, render_template, Response, send_from_directory
 from werkzeug.utils import redirect
 from updater.database import Database
 from updater.source import Source
@@ -11,7 +12,6 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 @app.route('/playlist')
 def get_playlist():
     db = Database(True)
-    data = ''
     if request.args.get('id'):
         data = db.get_playlist(id=request.args.get('id'))
     else:
@@ -22,19 +22,22 @@ def get_playlist():
 @app.route('/addsource', methods=['post', 'get'])
 def add_source():
     message = ''
+    style = ''
     if request.method == 'POST':
         url = request.form.get('url').replace(' ', '')
         password = request.form.get('password')
 
-        if password == app.config['SECRET_KEY']:
+        if password == app.config['SECRET_KEY'] and url != '':
             db = Database(True)
             source = Source(url=url)
             db.add_source(source)
             message = 'Success'
+            style = 'success'
         else:
-            message = 'Wrong password!'
+            message = 'Wrong password or URL!'
+            style = 'failed'
 
-    return render_template('add_source.html', message=message)
+    return render_template('add_source.html', message=message, style=style)
 
 
 @app.route('/channel')
@@ -48,3 +51,24 @@ def channel():
     else:
         # TODO: picture
         return 404
+
+
+@app.route('/addplaylist', methods=['post', 'get'])
+def add_playlist():
+    message = ''
+    style = ''
+
+    db = Database(True)
+    channels = db.get_channels()
+
+    if request.method == 'POST':
+        message = 'ok'
+        style = 'success'
+        print(request.form.getlist('selected'))
+
+    return render_template('add_playlist.html', channels=collections.OrderedDict(sorted(channels.items())), message=message, style=style)
+
+
+@app.route('/web/<path:path>')
+def give_styles(path):
+    return send_from_directory('web', path)

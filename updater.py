@@ -15,8 +15,13 @@ sources = db.get_sources()
 
 # Getting channels
 channels = db.get_channels()
-
 del db
+
+# Checking channels
+print('Checking channels...')
+for ch in channels.keys():
+    channels[ch].check()
+print('Done')
 
 print('Updating channels...')
 for src in sources:
@@ -38,6 +43,9 @@ for src in sources:
         title = c.title.strip()
         words = title.split()
 
+        if title[0] == '-':
+            continue
+
         # Defining quality
         for q in Qualities:
             for Qlable in q:
@@ -57,7 +65,7 @@ for src in sources:
             channel = Channel(title)
 
         # Adding url to channel
-        if not channel.add_url(c.uri, quality, True):
+        if not channel.add_url(c.uri, quality):
             print(f'\r ({form.segments.index(c)}/{src.channels})')
             continue
 
@@ -65,12 +73,12 @@ for src in sources:
 
         # Saving to array
         channels[title] = channel
-    db = Database (True)
+    db = Database(True)
     # Saving to database
     db.add_channels(channels)
     del db
 
-db = Database (True)
+db = Database(True)
 db.update_sources(sources)
 
 print('Updating playlists...', end=' ')
@@ -81,16 +89,19 @@ forms = db.get_playlists_forms()
 channels.clear()
 channels = db.get_channels()
 
+del db
+
 # Adding default form
 forms.append(Playlist(0, 'default', 1, []))
 
 for form in forms:
     playlist = m3u8.loads('#EXTM3U')
+    # Adding channels to first positions
     for ch in form.channels:
         url = f"{os.environ.get('URL')}/pictures?pic=not_found"
         theme = 0
         if ch in channels.keys():
-            url = f"{os.environ.get('URL')}/channel?id={channels[ch].id}&q={form.quality}"
+            url = channels[ch].get_url(form.quality)
             theme = themes_names[channels[ch].theme]
         seg = m3u8.Segment(title=ch, duration=-1, uri=url)
         seg.add_part(f'#EXTGRP: {theme}')
@@ -98,11 +109,16 @@ for form in forms:
 
     for k in channels.keys():
         ch = channels[k]
-        if ch not in form.channels:
-            seg = m3u8.Segment(title=ch.name, duration=-1, uri=f"{os.environ.get('URL')}/channel?id={ch.id}&q={form.quality}")
-            seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
-            playlist.add_segment(seg)
 
+        if ch.name in form.channels.keys():
+            continue
+
+        seg = m3u8.Segment(title=ch.name, duration=-1, uri=channels[ch].get_url(form.quality))
+        seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
+        playlist.add_segment(seg)
+
+    db = Database(True)
     db.save_playlist(form.id, playlist.dumps())
+    del db
 
 print('Done!')

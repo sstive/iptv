@@ -28,7 +28,7 @@ class Channel:
                 self.theme = themes.index(theme) + 1
                 return
 
-    def add_str_urls(self, str_urls, quality):
+    def add_str_urls(self, str_urls, quality, check=True):
         if str_urls == '':
             return False
         urls = str_urls.split(',')
@@ -78,3 +78,10 @@ class Channel:
             for url in urls[i]:
                 return url
         return 404
+
+    def check(self):
+        urls = [self.urls_sd, self.urls_hd, self.urls_fhd, self.urls_qhd, self.urls_uhd]
+        for i in range(4, -1, -1):
+            for url in urls[i]:
+                if not Utils.check_connection(url):
+                    urls[i].remove(url)

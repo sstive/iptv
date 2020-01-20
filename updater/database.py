@@ -3,7 +3,6 @@ import pymysql
 from updater.source import Source
 from updater.channel import Channel
 from updater.data import DB_tables, protocols
-from updater.utils import Utils
 from updater.playlist import Playlist
 
 
@@ -99,7 +98,7 @@ class Database:
             if 'playlists_forms' not in tables:
                 print('Adding default playlist')
                 cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
-"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,Пятница,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
+"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,Пятница!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
             self.con.commit()
 
         print('Database checked!')
@@ -163,7 +162,7 @@ class Database:
 
     def get_channels(self):
         channels = {}
-
+        # TODO: add checker
         with self.con.cursor() as cur:
             cur.execute('SELECT * FROM channels')
             chs = cur.fetchall()

@@ -10,18 +10,31 @@ from updater.playlist import Playlist
 # Connecting to database
 db = Database()
 
-# Getting sources
-sources = db.get_sources()
-
 # Getting channels
 channels = db.get_channels()
 del db
 
 # Checking channels
 print('Checking channels...')
+i = 1
 for ch in channels.keys():
+    print(f"{i}/{len(channels)}")
     channels[ch].check()
+    i += 1
 print('Done')
+
+db = Database()
+
+# Saving without bad urls
+db.add_channels(channels)
+
+# Getting new channels list
+channels.clear()
+channels = db.get_channels()
+
+# Getting sources
+sources = db.get_sources()
+del db
 
 print('Updating channels...')
 for src in sources:
@@ -73,10 +86,6 @@ for src in sources:
 
         # Saving to array
         channels[title] = channel
-    db = Database(True)
-    # Saving to database
-    db.add_channels(channels)
-    del db
 
 db = Database(True)
 db.update_sources(sources)
@@ -89,8 +98,6 @@ forms = db.get_playlists_forms()
 channels.clear()
 channels = db.get_channels()
 
-del db
-
 # Adding default form
 forms.append(Playlist(0, 'default', 1, []))
 
@@ -101,7 +108,9 @@ for form in forms:
         url = f"{os.environ.get('URL')}/pictures?pic=not_found"
         theme = 0
         if ch in channels.keys():
-            url = channels[ch].get_url(form.quality)
+            u = channels[ch].get_url(form.quality)
+            if u != 404:
+                url = u
             theme = themes_names[channels[ch].theme]
         seg = m3u8.Segment(title=ch, duration=-1, uri=url)
         seg.add_part(f'#EXTGRP: {theme}')
@@ -110,15 +119,17 @@ for form in forms:
     for k in channels.keys():
         ch = channels[k]
 
-        if ch.name in form.channels.keys():
+        if ch.name in form.channels:
             continue
 
-        seg = m3u8.Segment(title=ch.name, duration=-1, uri=channels[ch].get_url(form.quality))
+        url = channels[ch.name].get_url(form.quality)
+        if url == 404:
+            continue
+
+        seg = m3u8.Segment(title=ch.name, duration=-1, uri=url)
         seg.add_part(f'#EXTGRP: {themes_names[ch.theme]}')
         playlist.add_segment(seg)
 
-    db = Database(True)
     db.save_playlist(form.id, playlist.dumps())
-    del db
 
 print('Done!')

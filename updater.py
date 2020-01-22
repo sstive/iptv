@@ -40,20 +40,20 @@ print('Updating channels...')
 for src in sources:
     # Opening playlist
     try:
-        form = m3u8.loads(Utils.get(src.url, 3))
+        source = m3u8.loads(Utils.get(src.url, 3))
     except Exception as e:
         print(f'\t{e}')
         src.add_unavailable_days()
         continue
 
     src.reset_unavailable_days()
-    src.channels = len(form.segments)
+    src.channels = len(source.segments)
 
     # Working with channels
-    for c in form.segments:
+    for c in source.segments:
         quality = 0
 
-        title = c.title.strip()
+        title = c.title.strip().replace('"', '*')
         words = title.split()
 
         # Defining quality
@@ -75,8 +75,8 @@ for src in sources:
             channel = Channel(title)
 
         # Adding url to channel
-        if not channel.add_url(c.uri, quality):
-            print(f'\r ({form.segments.index(c)}/{src.channels})')
+        if not channel.add_url(c.uri, quality, True):
+            print(f'\t({source.segments.index(c)}/{src.channels})')
             continue
 
         src.add_available()
@@ -87,6 +87,7 @@ for src in sources:
 db = Database(True)
 db.update_sources(sources)
 
+db.add_channels(channels)
 print('Updating playlists...', end=' ')
 # Getting forms
 forms = db.get_playlists_forms()

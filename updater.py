@@ -56,9 +56,6 @@ for src in sources:
         title = c.title.strip()
         words = title.split()
 
-        if title[0] == '-':
-            continue
-
         # Defining quality
         for q in Qualities:
             for Qlable in q:

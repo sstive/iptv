@@ -98,7 +98,7 @@ class Database:
             if 'playlists_forms' not in tables:
                 print('Adding default playlist')
                 cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
-"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,Пятница!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
+"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,ПЯТНИЦА!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
             self.con.commit()
 
         print('Database checked!')
@@ -193,7 +193,7 @@ class Database:
 
     def save_playlist(self, id, data):
         with self.con.cursor() as cur:
-            cur.execute(f'INSERT INTO playlists (data) VALUES ("{data}") WHERE id = {id}')
+            cur.execute(f'INSERT INTO playlists (id, data) VALUES ({id}, "{data}") ON DUPLICATE KEY UPDATE data="{data}"')
         self.con.commit()
 
     def get_playlist(self, **params):

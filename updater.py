@@ -113,12 +113,16 @@ for form in forms:
             if u != 404:
                 url = u
             theme = themes_names[channels[ch].theme]
+            channels[ch] = ''
         seg = m3u8.Segment(title=ch, duration=-1, uri=url)
         seg.add_part(f'#EXTGRP: {theme}')
         playlist.add_segment(seg)
 
     for k in channels.keys():
         ch = channels[k]
+
+        if not ch:
+            continue
 
         if ch.name in form.channels:
             continue

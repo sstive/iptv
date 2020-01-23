@@ -188,12 +188,12 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute('SELECT * FROM playlists_forms')
             for pl in cur.fetchall():
-                forms.append(Playlist(pl['id'], pl['name'], pl['quality'], map(str.strip, pl['channels'].split(','))))
+                forms.append(Playlist(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'].split(',')))))
         return forms
 
     def save_playlist(self, id, data):
         with self.con.cursor() as cur:
-            cur.execute(f'INSERT INTO playlists (id, data) VALUES ({id}, "{data}") ON DUPLICATE KEY UPDATE data="{data}"')
+            cur.execute(f'INSERT INTO playlists (data) VALUES ("{data}") WHERE id = {id}')
         self.con.commit()
 
     def get_playlist(self, **params):

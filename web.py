@@ -43,7 +43,7 @@ def add_source():
 @app.route('/channel')
 def channel():
     if request.args.get('id') and request.args.get('q'):
-        db = Database()
+        db = Database(True)
         url = db.get_channel(id=request.args.get('id')).get_url(int(request.args.get('q')))
         if type(url) == int:
             return 404

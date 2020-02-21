@@ -201,7 +201,7 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute(f'SELECT * FROM playlists_forms WHERE name = \'{name}\'')
             pl = cur.fetchone()
-            form = Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1].split(','))))
+            form = Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1]..replace('\'', '')split(','))))
         return form
 
     def add_playlist_form(self, name, channels, quality, recreate=False):

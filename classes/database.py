@@ -103,7 +103,7 @@ class Database:
             if 'playlists_forms' not in tables:
                 print('Adding default playlist')
                 cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
-"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,Карусель,Россия 24,ОТР,Рен ТВ,Спас,СТС,Домашний,ТВ-3,ПЯТНИЦА!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
+"[Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,Карусель,Россия 24,ОТР,Рен ТВ,Спас,СТС,Домашний,ТВ-3,ПЯТНИЦА!,Звезда,Мир,ТНТ,МУЗ ТВ]", 2)')
             self.con.commit()
 
         print('Database checked!')

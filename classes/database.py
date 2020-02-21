@@ -60,7 +60,7 @@ class Database:
         return channel
 
     def __drop_database__(self):
-        if 'DROP_DATABASE' in os.environ.keys():
+        if 'DROP_DATABASE' in os.environ.keys() and os.environ['DROP_DATABASE'] == True:
             print('\nAre you sure want to drop database? (y/n)')
             if input().lower() != 'y':
                 return

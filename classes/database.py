@@ -60,7 +60,7 @@ class Database:
         return channel
 
     def __drop_database__(self):
-        if 'DROP_DATABASE' in os.environ.keys() and os.environ['DROP_DATABASE'] == True:
+        if 'DROP_DATABASE' in os.environ.keys() and os.environ['DROP_DATABASE'] != False:
             print('\nAre you sure want to drop database? (y/n)')
             if input().lower() != 'y':
                 return
@@ -201,7 +201,7 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute(f'SELECT * FROM playlists_forms WHERE name = \'{name}\'')
             pl = cur.fetchone()
-            form = Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1]..replace('\'', '')split(','))))
+            form = Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1].replace('\'', '')split(','))))
         return form
 
     def add_playlist_form(self, name, channels, quality, recreate=False):

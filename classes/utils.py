@@ -61,4 +61,4 @@ class Utils:
 
     @staticmethod
     def prepare_to_compare(text):
-        return text.lower().replace('-', ' ').replace('.', ' ').replace('tv', '').replace('тв', '').replace('_', ' ').strip()
+        return text.lower().replace('-', ' ').replace('.', '').replace('tv', '').replace('тв', '').replace('_', ' ').replace('#', '').replace('=', '').replace('!', '').replace('?', '').strip()

@@ -1,4 +1,4 @@
-from updater.database import Database
+from classes.database import Database
 # TODO: replace print with logging
 
 # Connecting to database
@@ -12,12 +12,12 @@ del db
 print('Checking channels...')
 i = 1
 for ch in channels.keys():
-    print(f"{i}/{len(channels)}")
+    print(f"{i}/{len(channels)}", end=' ')
     channels[ch].check()
     i += 1
 print('Done')
 
-db = Database()
+db = Database(True)
 
 # Saving without bad urls
 db.add_channels(channels)

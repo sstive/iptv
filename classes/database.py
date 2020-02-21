@@ -1,9 +1,9 @@
 import os
 import pymysql
-from updater.source import Source
-from updater.channel import Channel
-from updater.data import DB_tables, protocols
-from updater.playlist import Playlist
+from classes.source import Source
+from classes.channel import Channel
+from classes.data import DB_tables, protocols
+from classes.form import Form
 
 
 class Database:
@@ -72,6 +72,11 @@ class Database:
                 tables = self.__format_response__(cur.fetchall(), f"Tables_in_{os.environ['DB_DATABASE']}")
 
                 for table in tables:
+                    if table == 'sources':
+                        print('\nAre you sure want to drop sources? (y/n)')
+                        if input().lower() != 'y':
+                            return
+
                     print(f'\t{table}...', end=' ')
                     cur.execute(f'DROP TABLE {table};')
                     print(f'Done!')
@@ -98,7 +103,7 @@ class Database:
             if 'playlists_forms' not in tables:
                 print('Adding default playlist')
                 cur.execute('INSERT INTO playlists_forms (name, channels, quality) VALUES (\'Chizhov\', \
-"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,КАРУСЕЛЬ,Россия 24,ОТР,РЕН ТВ,Спас,СТС,Домашний,ТВ-3,ПЯТНИЦА!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
+"Первый канал,Россия 1,МАТЧ!,НТВ,Пятый канал,Россия К,ТВ Центр,Карусель,Россия 24,ОТР,Рен ТВ,Спас,СТС,Домашний,ТВ-3,ПЯТНИЦА!,Звезда,Мир,ТНТ,МУЗ ТВ", 2)')
             self.con.commit()
 
         print('Database checked!')
@@ -188,10 +193,28 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute('SELECT * FROM playlists_forms')
             for pl in cur.fetchall():
-                forms.append(Playlist(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'].split(',')))))
+                forms.append(Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1].split(',')))))
         return forms
 
+    def get_playlists_form(self, name):
+        form = None
+        with self.con.cursor() as cur:
+            cur.execute(f'SELECT * FROM playlists_forms WHERE name = \'{name}\'')
+            pl = cur.fetchone()
+            form = Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1].split(','))))
+        return form
+
+    def add_playlist_form(self, name, channels, quality, recreate=False):
+        with self.con.cursor() as cur:
+            req = f'INSERT INTO playlists_forms (name, channels, quality) VALUES (\'{name}\', "{channels}", {quality})'# ON DUPLICATE KEY '
+            if recreate:
+                req += f'UPDATE channels = "{channels}", quality = {quality}'
+            #req += ' name = '
+            cur.execute(req)
+        self.con.commit()
+
     def save_playlist(self, id, data):
+        print('Saving playlists...')
         with self.con.cursor() as cur:
             cur.execute(f'INSERT INTO playlists (id, data) VALUES ({id}, "{data}") ON DUPLICATE KEY UPDATE data="{data}"')
         self.con.commit()
@@ -204,3 +227,10 @@ class Database:
             cur.execute(f"SELECT * FROM playlists WHERE id = {params['id']}")
             result = cur.fetchone()
         return result['data']
+
+    def save_forms(self, forms):
+        with self.con.cursor() as cur:
+            for form in forms:
+                print('Saving forms...')
+                cur.execute(f'UPDATE playlists_forms SET channels="{form.channels}", quality={form.quality} WHERE id={form.id}')
+        self.con.commit()

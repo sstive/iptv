@@ -1,4 +1,4 @@
-from updater.data import protocols
+from classes.data import protocols
 
 
 class Source:

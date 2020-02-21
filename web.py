@@ -2,8 +2,8 @@ import os
 import collections
 from flask import Flask, request, render_template, Response, send_from_directory
 from werkzeug.utils import redirect
-from updater.database import Database
-from updater.source import Source
+from classes.database import Database
+from classes.source import Source
 
 app = Flask(__name__, template_folder='web')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')

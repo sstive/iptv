@@ -1,5 +1,5 @@
-from updater.utils import Utils
-from updater.data import themes
+from classes.utils import Utils
+from classes.data import themes
 
 
 class Channel:
@@ -81,7 +81,10 @@ class Channel:
 
     def check(self):
         urls = [self.urls_sd, self.urls_hd, self.urls_fhd, self.urls_qhd, self.urls_uhd]
-        for i in range(4, -1, -1):
-            for url in urls[i]:
+        for q in urls:
+            for url in q:
                 if not Utils.check_connection(url):
-                    urls[i].remove(url)
+                    q.remove(url)
+
+    def get_name(self):
+        return self.name

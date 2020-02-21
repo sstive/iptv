@@ -1,4 +1,4 @@
-class Playlist:
+class Form:
 
     def __init__(self, id, name, quality, channels=[]):
         self.id = id

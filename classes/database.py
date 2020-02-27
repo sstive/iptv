@@ -193,7 +193,7 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute('SELECT * FROM playlists_forms')
             for pl in cur.fetchall():
-                forms.append(Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1].split(',')))))
+                forms.append(Form(pl['id'], pl['name'], pl['quality'], list(map(str.strip, pl['channels'][1:-1]..replace('\'', '').split(',')))))
         return forms
 
     def get_playlists_form(self, name):

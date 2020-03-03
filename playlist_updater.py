@@ -74,8 +74,6 @@ forms.remove(forms[-1])
 db.save_forms(forms)
 
 for id in playlists.keys():
-    if id == 0:
-        continue
     db.save_playlist(id, playlists[id])
 
 print('Done!')

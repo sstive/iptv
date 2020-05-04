@@ -8,14 +8,29 @@ from classes.source import Source
 app = Flask(__name__, template_folder='web')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
-
+# TODO: Remove
 @app.route('/playlist')
-def get_playlist():
+def get_playlist_old():
     db = Database(True)
     if request.args.get('id'):
         data = db.get_playlist(id=request.args.get('id'))
     else:
         data = db.get_playlist(id=0)
+    return Response(data, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
+''' ------ '''
+
+
+@app.route('/p/<id>')
+def get_playlist(id):
+    db = Database(True)
+
+    try:
+        data = db.get_playlist(id=int(id))
+    except ValueError:
+        data = db.get_playlist(id=1)
+
+    if data == '404':
+        data = db.get_playlist(id=1)
     return Response(data, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
 
 

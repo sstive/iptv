@@ -221,12 +221,14 @@ class Database:
 
     def get_playlist(self, **params):
         if 'id' not in params.keys():
-            return 404
+            return '404'
 
         with self.con.cursor() as cur:
             cur.execute(f"SELECT * FROM playlists WHERE id = {params['id']}")
             result = cur.fetchone()
-        return result['data']
+        if 'data' in result:
+            return result['data']
+        return '404'
 
     def save_forms(self, forms):
         with self.con.cursor() as cur:

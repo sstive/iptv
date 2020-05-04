@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Add playlist</title>
+        <link rel="stylesheet" type="text/css" href="/web/styles.css" >
+    </head>
+    <body>
+        <div align="center">
+            <h1>Add playlist</h1>
+
+            {% if message %}
+                <p class="{{ style }}">{{ message }}</p>
+            {% endif %}
+
+            <form action="" method="post">
+                <p>
+                    <label for="url">Name</label>
+                    <br>
+                    <input type="text" name="name" required>
+                </p>
+
+                <p>
+                    <select name="selected" multiple>
+                        {% for channel in channels.keys() %}
+                            <option value="{{ channels[channel].id }}">{{ channels[channel].name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+
+                <br>
+                <p>
+                    <label for="password">Password</label>
+                    <br>
+                    <input type="password" name="password" required>
+                </p>
+                <p>
+                    <input type="submit">
+                </p>
+            </form>
+        </div>
+    </body>
+</html>

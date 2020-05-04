@@ -1,23 +1,12 @@
-import os
-
-# Database #
-DB_host = os.environ['DB_HOST']
-DB_name = os.environ['DB_DATABASE']
-DB_user = os.environ['DB_USER']
-DB_pass = os.environ['DB_PASSWORD']
-if 'DB_PORT' in os.environ.keys():
-    DB_port = os.environ['DB_PORT']
-else:
-    DB_port = False
-
 DB_tables = {
     'channels': 'CREATE TABLE channels(id SMALLINT unsigned AUTO_INCREMENT UNIQUE NOT NULL, name VARCHAR(150) UNIQUE NOT\
-                 NULL, theme TINYINT unsigned NOT NULL DEFAULT 0, sd TEXT,hd TEXT,fhd TEXT,uhd TEXT, PRIMARY KEY(id));',
-    'playlists': 'CREATE TABLE playlists (id SMALLINT unsigned NOT NULL UNIQUE AUTO_INCREMENT, name VARCHAR(15) UNIQUE\
+                 NULL, theme TINYINT unsigned NOT NULL DEFAULT 0, sd TEXT,hd TEXT,fhd TEXT,qhd TEXT,uhd TEXT, PRIMARY KEY(id));',
+    'playlists_forms': 'CREATE TABLE playlists_forms (id SMALLINT unsigned NOT NULL UNIQUE AUTO_INCREMENT, name VARCHAR(15) UNIQUE\
                  NOT NULL, channels TEXT, quality TINYINT unsigned NOT NULL DEFAULT 1, PRIMARY KEY(id))',
     'sources': 'CREATE TABLE sources(id SMALLINT unsigned NOT NULL UNIQUE AUTO_INCREMENT, url TEXT NOT NULL, protocol\
                  TINYINT unsigned NOT NULL DEFAULT 0, channels SMALLINT unsigned NOT NULL DEFAULT 0, ch_available \
-                 SMALLINT unsigned NOT NULL DEFAULT 0, unavailable TINYINT unsigned NOT NULL DEFAULT 0,PRIMARY KEY(id))'
+                 SMALLINT unsigned NOT NULL DEFAULT 0, unavailable TINYINT unsigned NOT NULL DEFAULT 0,PRIMARY KEY(id))',
+    'playlists': 'CREATE TABLE playlists (id SMALLINT unsigned NOT NULL UNIQUE, data TEXT, PRIMARY KEY(id))'
 }
 
 protocols = [
@@ -31,6 +20,8 @@ Qualities = [
     # SD (PAL)
     [
         'sd',
+        '(sd)',
+        '[sd]',
         'pal',
         '(pal)',
         '[pal]',
@@ -55,6 +46,18 @@ Qualities = [
         '1080p',
         '[1080p]',
         '(1080p)'
+    ],
+    # QHD (2k)
+    [
+        'qhd',
+        '[qhd]',
+        '(qhd)',
+        '2k',
+        '[2k]',
+        '(2k)',
+        '1440p',
+        '[1440p]',
+        '(1440p)'
     ],
     # UHD (4k)
     [

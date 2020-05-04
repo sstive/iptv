@@ -15,7 +15,7 @@ def get_playlist_old():
     if request.args.get('id'):
         data = db.get_playlist(id=request.args.get('id'))
     else:
-        data = db.get_playlist(id=0)
+        data = db.get_playlist(id=1)
     return Response(data, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
 ''' ------ '''
 

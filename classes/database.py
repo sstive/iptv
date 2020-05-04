@@ -226,7 +226,7 @@ class Database:
         with self.con.cursor() as cur:
             cur.execute(f"SELECT * FROM playlists WHERE id = {params['id']}")
             result = cur.fetchone()
-        if 'data' in result:
+        if 'data' in result.keys():
             return result['data']
         return '404'
 

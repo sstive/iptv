@@ -1,3 +1,89 @@
 {
+  "tables": {
+    "sources": {
+      "id": "KEY",
+      "url": [
+        "TEXT"
+      ],
+      "last_online": [
+        "DATE"
+      ],
+      "channels": [
+        "TEXT"
+      ],
+      "count": [
+        "SMALLINT"
+      ],
+      "available": [
+        "SMALLINT"
+      ]
+    },
 
+    "channels": {
+      "id": "KEY",
+      "group": [
+        "TINYINT",
+        "UNSIGNED"
+      ],
+      "views": [
+        "INT",
+        "UNSIGNED"
+      ],
+      "online": [
+        "BOOLEAN",
+        "NOT NULL",
+        "DEFAULT false"
+      ],
+      "urls": [
+        "TEXT"
+      ]
+    },
+
+    "users": {
+      "id": "KEY",
+      "name": [
+        "VARCHAR(30)",
+        "NOT NULL",
+        "UNIQUE"
+      ],
+      "email": [
+        "VARCHAR(50)",
+        "NOT NULL",
+        "DEFAULT 'UNCONFIRMED'",
+        "UNIQUE"
+      ],
+      "password": [
+        "VARCHAR(32)",
+        "NOT NULL"
+      ],
+      "playlists": [
+        "TEXT"
+      ]
+    },
+
+    "playlists": {
+      "id": "KEY",
+      "owner": [
+        "SMALLINT",
+        "NOT NULL"
+      ],
+      "quality": [
+        "SMALLINT"
+      ],
+      "channels": [
+        "TEXT"
+      ],
+      "creating_date": [
+        "DATE"
+      ],
+      "changing_date": [
+        "DATE"
+      ],
+      "delete_bad_channels": [
+        "BOOLEAN",
+        "NOT NULL",
+        "DEFAULT false"
+      ]
+    }
+  }
 }

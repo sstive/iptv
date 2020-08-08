@@ -1,4 +1,3 @@
-
 DB_tables = {
     'channels': 'CREATE TABLE channels(id SMALLINT unsigned AUTO_INCREMENT UNIQUE NOT NULL, name VARCHAR(150) UNIQUE NOT\
                  NULL, theme TINYINT unsigned NOT NULL DEFAULT 0, sd TEXT,hd TEXT,fhd TEXT,qhd TEXT,uhd TEXT, PRIMARY KEY(id));',

@@ -1,5 +1,5 @@
-from classes.utils import Utils
-from classes.data import themes
+from .utils import Utils
+from .data import themes
 
 
 class Channel:

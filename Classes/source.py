@@ -1,4 +1,4 @@
-from classes.data import protocols
+from .data import protocols
 
 
 class Source:

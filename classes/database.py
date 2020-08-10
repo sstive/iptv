@@ -149,7 +149,7 @@ class Database:
         for src in sources:
             with self.con.cursor() as cur:
                 cur.execute(f'UPDATE sources SET channels={src.channels}, ch_available={src.ch_available}, unavailable={src.unavailable} WHERE id={src.id}')
-                cur.execute('DELETE FROM sources WHERE unavailable >= 10 OR ch_available < 5')
+                # cur.execute('DELETE FROM sources WHERE unavailable >= 10 OR ch_available < 5')
 
         self.con.commit()
         print('Done!')

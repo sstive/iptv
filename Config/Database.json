@@ -118,6 +118,16 @@
       "date": [
         "DATE"
       ]
+    },
+
+    "tasks": {
+      "id": "KEY",
+      "date": ["DATE"],
+      "finished": [
+        "BOOLEAN",
+        "NOT NULL",
+        "DEFAULT false"
+      ]
     }
   }
 }

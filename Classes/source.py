@@ -1,49 +1,29 @@
-from .data import protocols
-
-
 class Source:
 
     def __init__(self, **params):
+        self.url = params['url']
+
         if 'id' in params.keys():
-            self.id = params['id']
+            self.sid = params['id']
         else:
-            self.id = None
+            self.sid = None
 
-        if 'protocol' in params.keys():
-            self.protocol = params['protocol']
+        if 'last_online' in params.keys():
+            self.last_online = params['last_online']
         else:
-            self.protocol = None
+            self.last_online = None
 
-        if 'host' in params.keys():
-            self.host = params['host']
+        if 'channels' in params.keys():
+            self.channels = params['channels']
         else:
-            self.host = None
+            self.ch_available = []
 
-        if 'url' in params.keys():
-            self.url = params['url']
-
-            s = self.url.split('://')
-
-            self.protocol = protocols.index(s[0])
-            self.host = s[1]
-        elif self.protocol and self.host:
-            self.url = protocols[self.protocol] + '://' + self.host
+        if 'count' in params.keys():
+            self.count = params['count']
         else:
-            self.url = None
+            self.count = 0
 
-        if 'unavailable' in params.keys():
-            self.unavailable = params['unavailable']
+        if 'available' in params.keys():
+            self.available = params['available']
         else:
-            self.unavailable = 0
-
-        self.ch_available = 0
-        self.channels = 0
-
-    def add_available(self):
-        self.ch_available += 1
-
-    def add_unavailable_days(self):
-        self.unavailable += 1
-
-    def reset_unavailable_days(self):
-        self.unavailable = 0
+            self.available = 0

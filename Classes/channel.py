@@ -1,90 +1,76 @@
-from .utils import Utils
-from .data import themes
-
-
 class Channel:
 
-    def __init__(self, name, theme=0, id=0):
-        self.id = id
-        self.name = name
+    def __init__(self, **params):
+        self.name = params['name']
 
-        self.label = name
-
-        self.theme = theme
-
-        # TODO: refactor saving urls
-        self.urls_sd = []
-        self.urls_hd = []
-        self.urls_fhd = []
-        self.urls_qhd = []
-        self.urls_uhd = []
-
-        if self.theme == 0:
-            self.__define_theme__()
-
-    def __define_theme__(self):
-        for theme in themes:
-            if Utils.prepare_to_compare(self.name) in theme:
-                self.theme = themes.index(theme) + 1
-                return
-
-    def add_str_urls(self, str_urls, quality, check=True):
-        if str_urls == '':
-            return False
-        urls = str_urls.split(',')
-        for url in urls:
-            self.add_url(url.strip(), quality)
-
-    def get_str_urls(self, quality=0):
-        if quality == 0:
-            return ','.join(self.urls_sd)
-        elif quality == 1:
-            return ','.join(self.urls_hd)
-        elif quality == 2:
-            return ','.join(self.urls_fhd)
-        elif quality == 3:
-            return ','.join(self.urls_qhd)
+        # Id
+        if 'id' in params.keys():
+            self.cid = params['id']
         else:
-            return ','.join(self.urls_uhd)
+            self.cid = None
 
-    def add_url(self, url, quality=0, check=False):
-        # Checking connection
-        if check:
-            if not Utils.check_connection(url):
-                return False
-
-        if quality == 0:
-            self.urls_sd.append(url)
-        elif quality == 1:
-            self.urls_hd.append(url)
-        elif quality == 2:
-            self.urls_fhd.append(url)
-        elif quality == 3:
-            self.urls_qhd.append(url)
+        # Theme
+        if 'group' in params.keys():
+            self.group = params['group']
         else:
-            self.urls_uhd.append(url)
+            self.group = None
+            self.__find_theme__()
 
-        return True
+        # Online
+        # TODO: make last online on every url
+        if 'online' in params.keys():
+            self.online = params['online']
+        else:
+            self.online = True
 
-    def get_id(self):
-        if self.id:
-            return self.id
-        return False
+        # Urls
+        if 'urls' in params.keys():
+            self.urls = self.__urls_to_list__(params['urls'])
+        else:
+            self.urls = [
+                [],     # SD
+                [],     # HD
+                [],     # FHD
+                []      # QHD
+            ]
 
-    def get_url(self, quality):
-        urls = [self.urls_sd, self.urls_hd, self.urls_fhd, self.urls_qhd, self.urls_uhd]
+        # Actions for new channels from playlist
+        if not ('from_db' in params.keys() and params['from_db']):
+            # Editing name
+            self.__check_name__()
 
-        for i in range(quality, -1, -1):
-            for url in urls[i]:
-                return url
-        return 404
+    def __find_theme__(self):
+        # TODO: find theme of channel
+        pass
 
-    def check(self):
-        urls = [self.urls_sd, self.urls_hd, self.urls_fhd, self.urls_qhd, self.urls_uhd]
-        for q in urls:
-            for url in q:
-                if not Utils.check_connection(url):
-                    q.remove(url)
+    # Removing HD, FHD and other words from channels name
+    def __check_name__(self):
+        # TODO: remove HD FHD and other from channels name
+        pass
 
-    def get_name(self):
-        return self.name
+    @staticmethod
+    def __urls_to_list__(urls):
+        if type(urls) is list:
+            return urls
+        elif type(urls) is dict:
+            new_urls = [[], [], [], []]
+            if 'sd' in urls.keys():
+                new_urls[0] = urls['sd']
+            if 'hd' in urls.keys():
+                new_urls[1] = urls['hd']
+            if 'fhd' in urls.keys():
+                new_urls[2] = urls['fhd']
+            if 'qhd' in urls.keys():
+                new_urls[3] = urls['qhd']
+            return new_urls
+
+    # Public #
+
+    def add_url(self, url, quality=0):
+        # If quality is string
+        if type(quality) is str:
+            qs = ['sd', 'hd', 'fhd', 'qhd']
+            self.urls[qs.index(quality)].append(url)
+        # If quality is number
+        else:
+            self.urls[quality].append(url)

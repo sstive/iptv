@@ -12,15 +12,22 @@
         "TEXT"
       ],
       "count": [
-        "SMALLINT"
+        "SMALLINT",
+        "DEFAULT 0"
       ],
       "available": [
-        "SMALLINT"
+        "SMALLINT",
+        "DEFAULT 0"
       ]
     },
 
     "channels": {
       "id": "KEY",
+      "name": [
+        "VARCHAR(50)",
+        "NOT NULL",
+        "UNIQUE"
+      ],
       "group": [
         "TINYINT",
         "UNSIGNED"
@@ -58,6 +65,9 @@
       ],
       "playlists": [
         "TEXT"
+      ],
+      "reg_date": [
+        "DATE"
       ]
     },
 
@@ -68,7 +78,9 @@
         "NOT NULL"
       ],
       "quality": [
-        "SMALLINT"
+        "SMALLINT",
+        "NOT NULL",
+        "DEFAULT 0"
       ],
       "channels": [
         "TEXT"
@@ -79,10 +91,32 @@
       "changing_date": [
         "DATE"
       ],
-      "delete_bad_channels": [
+      "del_channels": [
         "BOOLEAN",
         "NOT NULL",
         "DEFAULT false"
+      ]
+    },
+
+    "tokens": {
+      "id": "KEY",
+      "value": [
+        "VARCHAR(32)",
+        "NOT NULL",
+        "UNIQUE"
+      ],
+      "email": [
+        "VARCHAR(64)",
+        "NOT NULL",
+        "UNIQUE"
+      ],
+      "user": [
+        "VARCHAR(30)",
+        "NOT NULL",
+        "UNIQUE"
+      ],
+      "date": [
+        "DATE"
       ]
     }
   }

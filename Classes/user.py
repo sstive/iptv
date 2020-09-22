@@ -17,8 +17,8 @@ class User:
             self.email = 'UNCONFIRMED'
 
         # Playlists
-        if 'playlists' in params.keys():
-            self.playlists = params['playlists']
+        if '.playlists' in params.keys():
+            self.playlists = params['.playlists']
         else:
             self.playlists = []
 

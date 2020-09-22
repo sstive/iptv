@@ -1,8 +1,7 @@
 from Classes import Task
 
 
-# TODO: Update channels
-class Updater(Task):
+class UrlChecker(Task):
 
     def execute(self):
         pass

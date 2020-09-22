@@ -1,19 +1,22 @@
+from datetime import datetime
+
+
 class Task:
 
-    def __init__(self, database):
-        # TODO: Get tasks from database
-        self.database = database
+    def __init__(self, task_id, database):
+        self.tid = task_id
+        self.DB = database
 
-        self.__update_task__()
+        if self.DB.run('tasks.get_date', tid=self.tid) > datetime.now():
+            self.finished = True
+        else:
+            self.finished = False
 
-    # Set current date in database TODO
-    def __update_task__(self):
-        pass
+    def __del__(self):
+        # Shifting task time
+        self.DB.begin()
+        self.DB.run('task.prolong', tid=self.tid)
 
-    # Finish task TODO
-    def __complete_task__(self, task_id):
-        pass
-
-    # Run task TODO
+    # Run task
     def execute(self):
         pass

@@ -7,7 +7,7 @@ from classes.database import Database
 from classes.form import Form
 from classes.utils import Utils
 
-print('Updating playlists...', end=' ')
+print('Updating .playlists...', end=' ')
 
 db = Database()
 

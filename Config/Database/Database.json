@@ -1,0 +1,58 @@
+{
+  "connection": {
+    "db": "iptv",
+    "port": 3306,
+    "host": "localhost",
+    "user": "root",
+    "password": ""
+  },
+
+  "tables": {
+    "sources": {
+      "id": "KEY",
+      "url": ["TEXT"],
+      "last_online": ["DATE"],
+      "count": ["SMALLINT", "DEFAULT 0"],
+      "available": ["SMALLINT", "DEFAULT 0"]
+    },
+
+    "channels": {
+      "id": "KEY",
+      "name": ["VARCHAR(50)", "NOT NULL", "UNIQUE"],
+      "theme": ["TINYINT", "UNSIGNED"],
+      "urls": ["TEXT"]
+    },
+
+    "users": {
+      "id": "KEY",
+      "login": ["VARCHAR(30)", "NOT NULL", "UNIQUE"],
+      "email": ["VARCHAR(50)", "NOT NULL", "DEFAULT 'UNCONFIRMED'", "UNIQUE"],
+      "password": ["VARCHAR(32)", "NOT NULL"],
+      "playlists": ["TEXT"],
+      "reg_date": ["DATE"]
+    },
+
+    "playlists": {
+      "id": "KEY",
+      "owner": ["SMALLINT", "NOT NULL"],
+      "quality": ["SMALLINT", "NOT NULL", "DEFAULT 0"],
+      "channels": ["TEXT"],
+      "creating_date": ["DATE"],
+      "editing_date": ["DATE"],
+      "del_channels": ["BOOLEAN", "NOT NULL", "DEFAULT false"]
+    },
+
+    "tokens": {
+      "id": "KEY",
+      "value": ["VARCHAR(32)", "NOT NULL", "UNIQUE"],
+      "email": ["VARCHAR(64)", "NOT NULL", "UNIQUE"],
+      "user": ["SMALLINT", "NOT NULL", "UNIQUE"],
+      "date": ["DATE"]
+    },
+
+    "tasks": {
+      "id": "KEY",
+      "execute_after": ["DATE"]
+    }
+  }
+}

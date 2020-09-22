@@ -1,11 +1,7 @@
 {
   "Default": "SD",
+  "Indexes": ["SD", "HD", "FHD", "QHD", "UHD"],
   "Qualities": {
-    "SD": [
-      "sd",
-      "pal",
-      "480p"
-    ],
     "HD": [
       "hd",
       "720p"

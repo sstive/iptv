@@ -1,5 +1,5 @@
 # iptv
-playlists/
+.playlists/
 .idea/
 
 # Byte-compiled / optimized / DLL files
@@ -131,3 +131,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/.playlists/

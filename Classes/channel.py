@@ -1,6 +1,17 @@
 class Channel:
 
     def __init__(self, **params):
+        """
+        Class for channel, contain info about channel and functions for it.
+        :param params: Params of channel
+
+        :key name: Title of channel, should be str
+        :key id: Id of channel in database, should be int
+        :key theme: Id of theme, should be int
+        :key online: Is channel online, should be boolean
+        :key urls: Array with urls [quality][urls], should be list
+        :key url: Param for adding default url (url, quality), should be tuple
+        """
         self.name = params['name']
 
         # Id
@@ -10,10 +21,10 @@ class Channel:
             self.cid = None
 
         # Theme
-        if 'group' in params.keys():
-            self.group = params['group']
+        if 'theme' in params.keys():
+            self.theme = params['group']
         else:
-            self.group = None
+            self.theme = None
             self.__find_theme__()
 
         # Online
@@ -34,18 +45,12 @@ class Channel:
                 []      # QHD
             ]
 
-        # Actions for new channels from playlist
-        if not ('from_db' in params.keys() and params['from_db']):
-            # Editing name
-            self.__check_name__()
+        # Adding single url (tuple)
+        if 'url' in params.keys():
+            self.urls[params['url'][1]] = params['url'][0]
 
     def __find_theme__(self):
         # TODO: find theme of channel
-        pass
-
-    # Removing HD, FHD and other words from channels name
-    def __check_name__(self):
-        # TODO: remove HD FHD and other from channels name
         pass
 
     @staticmethod
@@ -74,3 +79,7 @@ class Channel:
         # If quality is number
         else:
             self.urls[quality].append(url)
+
+    def check(self):
+        # TODO: check connection to channel
+        pass

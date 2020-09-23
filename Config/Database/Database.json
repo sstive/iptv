@@ -12,8 +12,7 @@
       "id": "KEY",
       "url": ["TEXT"],
       "last_online": ["DATE"],
-      "count": ["SMALLINT", "DEFAULT 0"],
-      "available": ["SMALLINT", "DEFAULT 0"]
+      "count": ["SMALLINT", "DEFAULT 0"]
     },
 
     "channels": {

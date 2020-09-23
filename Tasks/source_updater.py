@@ -1,100 +1,97 @@
-from Classes import Task
+from datetime import datetime
+from threading import Thread
+from urllib.error import HTTPError, URLError
+
+import m3u8
+
+from Classes import Task, Channel
 
 
 class SourceUpdater(Task):
 
+    @staticmethod
+    def fix_name(name):
+        quality = 0
+        # TODO: Prepare name (Remove HD, ", etc)
+        return name, quality
+
     def execute(self):
-        # Getting objects from database
+        print("Executing source updater...")
+
+        # Getting objects from database #
+        print("\t- Getting objects from database...", end=' ')
         channels = self.DB.run('channels.get')
         sources = self.DB.run('sources.get')
+        print("Done!")
 
         # Disconnect from database
         self.DB.end()
 
-        # TODO: Get sources (parse m3u8)
-        # TODO: Add new urls to channels
-        # TODO: Save sources to database (last online, etc)
-        # TODO: Check channels urls
-        # TODO: Save channels
+        # Getting sources (parsing m3u8) #
+        print("\t- Getting sources...", end=' ')
+        for source in sources:
+            # Trying to parse m3u8
+            try:
+                playlist = m3u8.load(source['url'])
+            except HTTPError or URLError:
+                continue
+            except ValueError:
+                # TODO: fix groups
+                continue
 
-        # TODO: Update task in database
+            # Updating sources
+            sources['count'] = len(playlist.data['segments'])
+            sources['last_online'] = datetime.now()
 
-'''
+            # Adding urls to channels #
+            for segment in playlist.data['segments']:
+                # Normalising name
+                title, quality = self.fix_name(segment['title'])
 
-channels = db.get_channels()
-
-# Getting sources
-sources = db.get_sources()
-del db
-
-print('Updating channels...')
-for src in sources:
-    # Opening playlist
-    print(f'\tGetting source {src.url} ...', end=' ')
-    try:
-        source_pl = m3u8.loads(Utils.get(src.url, 3))
-    except Exception as e:
-        print(f'\t{e}')
-        src.add_unavailable_days()
-        continue
-
-    print('Done!')
-
-    src.reset_unavailable_days()
-    src.channels = len(source_pl.segments)
-
-    # Working with channels
-    for channel_pl in source_pl.segments:
-        quality = 0
-
-        title = channel_pl.title.strip().replace('"', '*')
-        words = title.split()
-
-        if title[0] in ['=', '-', '#', ':', '*']:
-            continue
-
-        # Defining quality
-        for q in Qualities:
-            for Qlable in q:
-                for word in words:
-                    if word.lower() == Qlable:
-                        quality = Qualities.index(q)
-                        if words.index(word) > 0 and len(words) > 1:
-                            words.remove(word)
-                            title = ' '.join(words).strip()
+                # Searching channel in array
+                found = False
+                for channel in channels:
+                    if channel.name == title:
+                        channel.add_url(segment['uri'], quality)
+                        found = True
                         break
 
-        found = False
-        str = Utils.prepare_to_compare(title)
-        for key in channels.keys():
-            if Utils.prepare_to_compare(key) == str:
-                found = True
-                title = key
-                break
+                # Creating new if not found
+                if not found:
+                    channels.append(Channel(name=title, url=(segment['uri'], quality)))
+        print("Done")
 
-        if found:
-            # If channel already in array
-            channel = channels[title]
-        else:
-            # Create new channel
-            channel = Channel(title)
+        # Checking channels urls #
+        print("\t- Checking urls...", end=" ")
 
-        # Adding url to channel
-        if not channel.add_url(channel_pl.uri, quality, False):
-            print('Can\'t connect!', end=' ')
-            continue
+        # Starting threads
+        threads = []
+        for channel in channels:
+            checker = Thread(target=channel.check)
+            threads.append(checker)
+            threads[-1].start()
 
-        src.add_available()
-        print(f'\t({source_pl.segments.index(channel_pl)}/{src.channels})')
-        # Saving to array
-        channels[title] = channel
+        # Waiting for ending
+        while len(threads) > 0:
+            i = 0
+            while i < len(threads):
+                if not threads[i].is_alive():
+                    del threads[i]
+                else:
+                    i += 1
+        print("Done")
 
-db = Database(True)
-db.update_sources(sources)
+        # Starting db connection
+        self.DB.begin()
 
-db.add_channels(channels)
+        # Saving sources to database (last online, etc) #
+        print("\t- Saving sources...", end=" ")
+        self.DB.run('sources.save', sources=sources)
+        print("Done!")
 
-del db
+        # Saving channels #
+        print("\t- Saving channels...", end=" ")
+        self.DB.run('channels.save', channels=channels)
+        print("Done!")
 
-print('New urls received!')
-'''
+        print("Done!")

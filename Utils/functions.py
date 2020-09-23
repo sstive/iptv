@@ -7,5 +7,10 @@ def get_channels(db: Database, **kwargs):
 
 
 FUNCS = {
-    'channels.get': get_channels
+    'channels.get': get_channels,
+    'channels.save': None,
+    'sources.get': None,
+    'sources.save': None,
+    'tasks.get_date': None,
+    'tasks.prolong': None
 }

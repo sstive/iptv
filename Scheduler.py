@@ -11,11 +11,7 @@ DB = Database('Config/Database/Database.json', FUNCTIONS=FUNCS)
 
 # Running tasks #
 Tasks = [
-    SourceUpdater(1, DB),
-
-    UrlChecker(2, DB),
-
-    PlaylistFormer(3, DB),
+    Updater(1, DB),
 
     MailManager(4, DB)
 ]

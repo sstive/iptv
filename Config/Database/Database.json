@@ -19,7 +19,8 @@
       "id": "KEY",
       "name": ["VARCHAR(50)", "NOT NULL", "UNIQUE"],
       "theme": ["TINYINT", "UNSIGNED"],
-      "urls": ["TEXT"]
+      "urls": ["TEXT"],
+      "online": ["TINYINT", "UNSIGNED"]
     },
 
     "users": {

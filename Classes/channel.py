@@ -1,3 +1,7 @@
+import urllib.request
+from urllib.error import URLError, HTTPError
+
+
 class Channel:
 
     def __init__(self, **params):
@@ -8,7 +12,7 @@ class Channel:
         :key name: Title of channel, should be str
         :key id: Id of channel in database, should be int
         :key theme: Id of theme, should be int
-        :key online: Is channel online, should be boolean
+        :key online: Is channel online (for every quality), should be list
         :key urls: Array with urls [quality][urls], should be list
         :key url: Param for adding default url (url, quality), should be tuple
         """
@@ -28,11 +32,10 @@ class Channel:
             self.__find_theme__()
 
         # Online
-        # TODO: make last online on every url
         if 'online' in params.keys():
             self.online = params['online']
         else:
-            self.online = True
+            self.online = [False, False, False, False]
 
         # Urls
         if 'urls' in params.keys():
@@ -69,6 +72,10 @@ class Channel:
                 new_urls[3] = urls['qhd']
             return new_urls
 
+    def __set_online__(self):
+        for i in range(0, len(self.urls)):
+            self.online[i] = len(self.urls[i]) > 0
+
     # Public #
 
     def add_url(self, url, quality=0):
@@ -80,6 +87,15 @@ class Channel:
         else:
             self.urls[quality].append(url)
 
+    # Checking urls
     def check(self):
-        # TODO: check connection to channel
-        pass
+        for i in range(0, len(self.urls)):
+            for url in self.urls[i]:
+                try:
+                    if urllib.request.urlopen(url, timeout=3).getcode() == 200:
+                        continue
+                except URLError or HTTPError:
+                    pass
+
+                self.urls[i].remove(url)
+        self.__set_online__()

@@ -1,4 +1,2 @@
-from .source_updater import SourceUpdater
-from .url_checker import UrlChecker
-from .playlist_former import PlaylistFormer
+from .updater import Updater
 from .mail_manager import MailManager

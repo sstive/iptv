@@ -7,7 +7,7 @@ import m3u8
 from Classes import Task, Channel
 
 
-class SourceUpdater(Task):
+class Updater(Task):
 
     @staticmethod
     def fix_name(name):
@@ -93,5 +93,8 @@ class SourceUpdater(Task):
         print("\t- Saving channels...", end=" ")
         self.DB.run('channels.save', channels=channels)
         print("Done!")
+
+        # Closing db connection
+        self.DB.end()
 
         print("Done!")

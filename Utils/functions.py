@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+from Classes.channel import Channel
 from DBHelper import Database
 
 
@@ -7,22 +10,33 @@ def channels_get(db: Database, **kwargs):
     Function for getting channels from database
     :return: List with channels
     """
-    return
+    resp = db.select('channels', '*')
+    channels = []
+
+    for db_channel in resp:
+        channels.append(
+            Channel(
+                id=db_channel[0],
+                name=db_channel[1],
+                theme=db_channel[2],
+                urls=db_channel[3],
+                online=db_channel[4]
+            )
+        )
+    return channels
 
 
 def channels_save(db: Database, **kwargs):
     """
     Function for saving channels to database
-    :key channels: List with channels
+    :key channels: List with channels, should be list
     """
-    urls = []
-    online = 0
-    for q in urls:
-        if len(q) > 0:
-            online += 1
-        online *= 2
-    online //= 2
-    pass
+    for ch in kwargs['channels']:
+        db.insert_or_update('channels', **ch.get_dict())
+        # request = f"INSERT INTO channels (id, name, theme, urls, online) VALUES ({ch.cid}, '{ch.name}', {ch.theme}, \"{ch.get_urls()}\", {ch.get_online()}) " \
+        #          f"ON DUPLICATE KEY UPDATE name='{ch.name}', theme={ch.theme}, urls=\"{ch.get_urls()}\", online={ch.get_online()}"
+        # db.execute(request)
+
 # -------- #
 
 
@@ -32,7 +46,18 @@ def sources_get(db: Database, **kwargs):
     Function for getting sources from database
     :return: List with dicts of sources
     """
-    return
+    resp = db.select('sources', '*')
+    sources = []
+
+    for source in resp:
+        sources.append({
+            'id': source[0],
+            'url': source[1],
+            'last_online': source[2],
+            'count': source[3]
+        })
+
+    return sources
 
 
 def sources_save(db: Database, **kwargs):
@@ -40,7 +65,8 @@ def sources_save(db: Database, **kwargs):
     function for saving sources
     :key sources: List with sources
     """
-    pass
+    for src in kwargs['sources']:
+        db.insert_or_update('sources', **src)
 # ------- #
 
 
@@ -51,7 +77,10 @@ def tasks_get_date(db: Database, **kwargs):
     :key tid: Task id
     :return: Datetime when task should be executed
     """
-    return
+    resp = db.select('tasks', ['execute_after'], f"WHERE id={kwargs['tid']}")
+    if len(resp) == 0:
+        return datetime.now().date()
+    return resp[0][0]
 
 
 def tasks_prolong(db: Database, **kwargs):
@@ -59,7 +88,8 @@ def tasks_prolong(db: Database, **kwargs):
     Function for changing task's executing time
     :key tid: Task id
     """
-    pass
+    next_time = datetime.today() + timedelta(days=1)
+    db.insert_or_update('tasks', id=kwargs['tid'], execute_after=next_time.date().strftime("%Y-%m-%d"))
 # ----- #
 
 

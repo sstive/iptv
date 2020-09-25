@@ -18,9 +18,9 @@
     "channels": {
       "id": "KEY",
       "name": ["VARCHAR(50)", "NOT NULL", "UNIQUE"],
-      "theme": ["TINYINT", "UNSIGNED"],
+      "theme": ["TINYINT", "UNSIGNED", "DEFAULT 0"],
       "urls": ["TEXT"],
-      "online": ["TINYINT", "UNSIGNED"]
+      "online": ["TINYINT", "UNSIGNED", "DEFAULT 0"]
     },
 
     "users": {

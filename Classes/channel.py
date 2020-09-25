@@ -1,5 +1,4 @@
 import urllib.request
-from urllib.error import URLError, HTTPError
 
 
 class Channel:
@@ -26,7 +25,7 @@ class Channel:
 
         # Theme
         if 'theme' in params.keys():
-            self.theme = params['group']
+            self.theme = params['theme']
         else:
             self.theme = None
             self.__find_theme__()
@@ -35,29 +34,36 @@ class Channel:
         if 'online' in params.keys():
             self.online = params['online']
         else:
-            self.online = [False, False, False, False]
+            self.online = [False, False, False, False, False]
+        self.__convert_online__()
 
         # Urls
         if 'urls' in params.keys():
-            self.urls = self.__urls_to_list__(params['urls'])
+            self.urls = params['urls']
         else:
             self.urls = [
                 [],     # SD
                 [],     # HD
                 [],     # FHD
-                []      # QHD
+                [],     # QHD
+                []      # UHD
             ]
+        self.__convert_urls__()
 
         # Adding single url (tuple)
         if 'url' in params.keys():
-            self.urls[params['url'][1]] = params['url'][0]
+            url, q = params['url']
+            self.urls[q].append(url)
 
     def __find_theme__(self):
         # TODO: find theme of channel
         pass
 
-    @staticmethod
-    def __urls_to_list__(urls):
+    # Convert urls from string to dict
+    def __convert_urls__(self):
+        return
+        # TODO: Refactor
+        urls = self.urls
         if type(urls) is list:
             return urls
         elif type(urls) is dict:
@@ -76,6 +82,26 @@ class Channel:
         for i in range(0, len(self.urls)):
             self.online[i] = len(self.urls[i]) > 0
 
+    # Convert online to boolean list
+    def __convert_online__(self):
+        if type(self.online) is not int:
+            return
+
+        # [SD, HD, FHD, QHD, UHD]
+        online = self.online
+        self.online = []
+        while online > 0:
+            if online % 2 == 1:
+                self.online.append(True)
+            else:
+                self.online.append(False)
+            online //= 2
+
+        # Adding zeroes
+        while len(self.online) < 5:
+            self.online.append(False)
+        self.online.reverse()
+
     # Public #
 
     def add_url(self, url, quality=0):
@@ -87,6 +113,25 @@ class Channel:
         else:
             self.urls[quality].append(url)
 
+    # Return online as number
+    def get_online(self):
+        online = 0
+        for q in self.online:
+            if q:
+                online += 1
+            online *= 2
+        online //= 2
+        return online
+
+    # Convert urls to string for database
+    def get_urls(self):
+        return ';'.join(list(map(lambda urls: ','.join(urls), self.urls)))
+
+    # Function for comparing names
+    def compare(self, title):
+        # TODO: Remove hd, fhd, etc and find quality
+        return title == self.name
+
     # Checking urls
     def check(self):
         for i in range(0, len(self.urls)):
@@ -94,8 +139,30 @@ class Channel:
                 try:
                     if urllib.request.urlopen(url, timeout=3).getcode() == 200:
                         continue
-                except URLError or HTTPError:
+                except Exception:
                     pass
 
                 self.urls[i].remove(url)
         self.__set_online__()
+
+    # Convert channel to dict
+    def get_dict(self):
+        d = {
+            'id': self.cid,
+            'name': self.name,
+            'theme': self.theme,
+            'urls': self.get_urls(),
+            'online': self.get_online(),
+        }
+
+        # Finding empty values
+        delete = []
+        for k, v in d.items():
+            if v is None:
+                delete.append(k)
+
+        # Deleting empty values
+        for k in delete:
+            del d[k]
+
+        return d

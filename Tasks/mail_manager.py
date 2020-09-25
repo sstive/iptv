@@ -1,4 +1,4 @@
-from Classes import Task
+from Utils.task import Task
 
 
 # TODO: Send confirmation email and delete old tokens

@@ -4,16 +4,16 @@ from urllib.error import HTTPError, URLError
 
 import m3u8
 
-from Classes import Task, Channel
+from Utils.task import Task
+from Classes import Channel
 
 
 class Updater(Task):
 
     @staticmethod
     def fix_name(name):
-        quality = 0
         # TODO: Prepare name (Remove HD, ", etc)
-        return name, quality
+        return name, 0
 
     def execute(self):
         print("Executing source updater...")
@@ -36,24 +36,25 @@ class Updater(Task):
             except HTTPError or URLError:
                 continue
             except ValueError:
-                # TODO: fix groups
+                # TODO: fix groups in some playlists ('group-title=')
                 continue
 
             # Updating sources
-            sources['count'] = len(playlist.data['segments'])
-            sources['last_online'] = datetime.now()
+            source['count'] = len(playlist.data['segments'])
+            source['last_online'] = datetime.now().date().strftime("%Y-%m-%d")
 
             # Adding urls to channels #
             for segment in playlist.data['segments']:
                 # Normalising name
+                # TODO: Refactor
                 title, quality = self.fix_name(segment['title'])
 
                 # Searching channel in array
                 found = False
                 for channel in channels:
-                    if channel.name == title:
-                        channel.add_url(segment['uri'], quality)
+                    if channel.compare(title):
                         found = True
+                        channel.add_url(segment['uri'], quality)
                         break
 
                 # Creating new if not found

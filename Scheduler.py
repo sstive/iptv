@@ -5,17 +5,9 @@ from Tasks import *
 from Utils.functions import FUNCS
 
 
-# Init database
-DB = Database('Config/Database/Database.json', FUNCTIONS=FUNCS)
+if __name__ == '__main__':
+    # Init database
+    DB = Database('Config/Database/Database.json', functions=FUNCS)
 
-
-# Running tasks #
-Tasks = [
-    Updater(1, DB),
-
-    MailManager(4, DB)
-]
-
-for task in Tasks:
-    if not task.finished:
-        task.execute()
+    Updater(1, DB).execute()
+    MailManager(2, DB).execute()

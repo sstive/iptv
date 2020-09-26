@@ -42,11 +42,11 @@ class Channel:
             self.urls = params['urls']
         else:
             self.urls = [
-                [],     # SD
-                [],     # HD
-                [],     # FHD
-                [],     # QHD
-                []      # UHD
+                [],  # SD
+                [],  # HD
+                [],  # FHD
+                [],  # QHD
+                []  # UHD
             ]
         self.__convert_urls__()
 
@@ -61,25 +61,14 @@ class Channel:
 
     # Convert urls from string to dict
     def __convert_urls__(self):
-        return
-        # TODO: Refactor
-        urls = self.urls
-        if type(urls) is list:
-            return urls
-        elif type(urls) is dict:
-            new_urls = [[], [], [], []]
-            if 'sd' in urls.keys():
-                new_urls[0] = urls['sd']
-            if 'hd' in urls.keys():
-                new_urls[1] = urls['hd']
-            if 'fhd' in urls.keys():
-                new_urls[2] = urls['fhd']
-            if 'qhd' in urls.keys():
-                new_urls[3] = urls['qhd']
-            return new_urls
+        if type(self.urls) is not str:
+            return
+        self.urls = self.urls.split(';')
+        for i in range(0, len(self.urls)):
+            self.urls[i] = self.urls[i].split(',')
 
     def __set_online__(self):
-        for i in range(0, len(self.urls)):
+        for i in range(0, len(self.online)):
             self.online[i] = len(self.urls[i]) > 0
 
     # Convert online to boolean list
@@ -103,7 +92,6 @@ class Channel:
         self.online.reverse()
 
     # Public #
-
     def add_url(self, url, quality=0):
         # If quality is string
         if type(quality) is str:
@@ -166,3 +154,14 @@ class Channel:
             del d[k]
 
         return d
+    # -------- #
+
+    # Static #
+    @staticmethod
+    def fix_name(name: str):
+        # Symbols to replace
+        replace_chars = [('_', ''), ('"', '\\"')]
+        for char in replace_chars:
+            name = name.replace(char[0], char[1])
+
+    # ------ #

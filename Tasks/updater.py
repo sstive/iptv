@@ -1,5 +1,7 @@
-from datetime import datetime
+import threading
 from threading import Thread
+import time
+from datetime import datetime
 from urllib.error import HTTPError, URLError
 
 import m3u8
@@ -9,6 +11,24 @@ from Classes import Channel
 
 
 class Updater(Task):
+
+    # Threads #
+    threads = []
+    threads_started = False
+
+    def thread_cleaner(self):
+        while len(self.threads) > 0 or self.threads_started:
+            i = 0
+            if len(self.threads) > 0:
+                print(self.threads[0].name + '\t\t' + str(len(self.threads)) + '\t' + str(threading.active_count()))
+            time.sleep(1)
+            while i < len(self.threads):
+                if not self.threads[i].is_alive():
+                    del self.threads[i]
+                else:
+                    i += 1
+        print('sdaadad')
+    # ------- #
 
     @staticmethod
     def fix_name(name):
@@ -24,6 +44,9 @@ class Updater(Task):
         sources = self.DB.run('sources.get')
         print("Done!")
 
+        if len(sources) == 0:
+            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-09-26', 'count': 0})
+
         # Disconnect from database
         self.DB.end()
 
@@ -33,10 +56,12 @@ class Updater(Task):
             # Trying to parse m3u8
             try:
                 playlist = m3u8.load(source['url'])
-            except HTTPError or URLError:
-                continue
             except ValueError:
                 # TODO: fix groups in some playlists ('group-title=')
+                continue
+            except HTTPError:
+                continue
+            except URLError:
                 continue
 
             # Updating sources
@@ -60,27 +85,29 @@ class Updater(Task):
                 # Creating new if not found
                 if not found:
                     channels.append(Channel(name=title, url=(segment['uri'], quality)))
-        print("Done")
+        print("Done!")
 
         # Checking channels urls #
         print("\t- Checking urls...", end=" ")
 
         # Starting threads
-        threads = []
+        self.threads_started = True
+        thread_cleaner = Thread(target=self.thread_cleaner)
+        thread_cleaner.start()
+
         for channel in channels:
+            # Waiting for vacant space
+            while threading.active_count() >= 700:
+                time.sleep(1)
             checker = Thread(target=channel.check)
-            threads.append(checker)
-            threads[-1].start()
+            self.threads.append(checker)
+            self.threads[-1].start()
 
         # Waiting for ending
-        while len(threads) > 0:
-            i = 0
-            while i < len(threads):
-                if not threads[i].is_alive():
-                    del threads[i]
-                else:
-                    i += 1
-        print("Done")
+        print(threading.active_count())
+        self.threads_started = False
+        thread_cleaner.join()
+        print(f"Done!")
 
         # Starting db connection
         self.DB.begin()

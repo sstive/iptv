@@ -95,6 +95,8 @@ class Updater(Task):
         thread_cleaner = Thread(target=self.thread_cleaner)
         thread_cleaner.start()
 
+        names = {}
+
         for channel in channels:
             # Waiting for vacant space
             while threading.active_count() >= 700:
@@ -102,6 +104,12 @@ class Updater(Task):
             checker = Thread(target=channel.check)
             self.threads.append(checker)
             self.threads[-1].start()
+            names[checker.name] = channel.name
+
+        print(str(names))
+        f = open('threads.txt', 'w')
+        f.write(str(names))
+        f.close()
 
         # Waiting for ending
         print(threading.active_count())

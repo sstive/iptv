@@ -20,7 +20,8 @@
       "name": ["VARCHAR(50)", "NOT NULL", "UNIQUE"],
       "theme": ["TINYINT", "UNSIGNED", "DEFAULT 0", "NOT NULL"],
       "urls": ["TEXT"],
-      "online": ["TINYINT", "UNSIGNED", "DEFAULT 0", "NOT NULL"]
+      "online": ["TINYINT", "UNSIGNED", "DEFAULT 0", "NOT NULL"],
+      "source_id": ["TINYINT", "UNSIGNED"]
     },
 
     "users": {

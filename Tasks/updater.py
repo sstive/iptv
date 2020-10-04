@@ -44,11 +44,12 @@ class Updater(Task):
         sources = self.DB.run('sources.get')
         print("Done!")
 
-        if len(sources) == 0:
-            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-09-26', 'count': 0})
-
         # Disconnect from database
         self.DB.end()
+
+        # Adding default source
+        if len(sources) == 0:
+            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-09-26', 'count': 0})
 
         # Getting sources (parsing m3u8) #
         print("\t- Getting sources...", end=' ')

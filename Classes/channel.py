@@ -11,11 +11,17 @@ class Channel:
         :key name: Title of channel, should be str
         :key id: Id of channel in database, should be int
         :key theme: Id of theme, should be int
+        :key group_title: Title of group
         :key online: Is channel online (for every quality), should be list
         :key urls: Array with urls [quality][urls], should be list
         :key url: Param for adding default url (url, quality), should be tuple
+        :key source: Id of source
         """
-        self.name = params['name']
+        # TODO: Refactor
+        if len(params['name']) < 50:
+            self.name = params['name']
+        else:
+            self.name = params['name'][:50]
 
         # Id
         if 'id' in params.keys():
@@ -36,6 +42,10 @@ class Channel:
         else:
             self.online = [False, False, False, False, False]
         self.__convert_online__()
+
+        # Source id
+        if 'source_id' in params.keys():
+            self.source_id = params['source_id']
 
         # Urls
         if 'urls' in params.keys():
@@ -141,6 +151,7 @@ class Channel:
             'theme': self.theme,
             'urls': self.get_urls(),
             'online': self.get_online(),
+            'source_id': self.source_id
         }
 
         # Finding empty values

@@ -2,12 +2,12 @@ import requests
 import shlex
 
 
-EMPTY_CHANNEL = {'title': "", 'uri': "", 'group_title': 0}
+EMPTY_CHANNEL = {'title': "", 'uri': "", 'group_title': ""}
 
 
 def load(uri: str):
     try:
-        req = requests.get(uri)
+        req = requests.get(uri, timeout=5)
     except Exception:
         return
 
@@ -21,7 +21,7 @@ def load(uri: str):
     if len(lines) < 1 or len(lines[0]) < 7 or lines[0][:7] != '#EXTM3U':
         return None
 
-    channel = EMPTY_CHANNEL
+    channel = {**EMPTY_CHANNEL}
     filled = False
 
     for line in lines:
@@ -46,10 +46,14 @@ def load(uri: str):
             # New channel
             elif parts[0] == '#EXTINF':
                 params, channel['title'] = parts[1].split(',', 1)
+                channel['title'] = channel['title'].strip()
+                if channel['title'][0] == '#':
+                    channel = {**EMPTY_CHANNEL}
+                    continue
+                filled = True
 
                 # Splitting params and removing length (-1)
                 params = shlex.split(params)[1:]
-                filled = True
 
                 for param in params:
                     param = param.split('=', 1)
@@ -60,7 +64,8 @@ def load(uri: str):
         elif filled:
             channel['uri'] = line
             channels.append(channel)
-            channel = EMPTY_CHANNEL
+
+            channel = {**EMPTY_CHANNEL}
             filled = False
 
     return channels

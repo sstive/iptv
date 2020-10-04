@@ -1,16 +1,11 @@
-import threading
-from threading import Thread
 import time
+import threading
 from datetime import datetime
-from urllib.error import HTTPError, URLError
-
-import m3u8
-
-from Utils.task import Task
+from Utils import task, parser
 from Classes import Channel
 
 
-class Updater(Task):
+class Updater(task.Task):
 
     # Threads #
     threads = []
@@ -19,15 +14,12 @@ class Updater(Task):
     def thread_cleaner(self):
         while len(self.threads) > 0 or self.threads_started:
             i = 0
-            if len(self.threads) > 0:
-                print(self.threads[0].name + '\t\t' + str(len(self.threads)) + '\t' + str(threading.active_count()))
             time.sleep(1)
             while i < len(self.threads):
                 if not self.threads[i].is_alive():
                     del self.threads[i]
                 else:
                     i += 1
-        print('sdaadad')
     # ------- #
 
     @staticmethod
@@ -49,30 +41,29 @@ class Updater(Task):
 
         # Adding default source
         if len(sources) == 0:
-            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-09-26', 'count': 0})
+            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-01-01', 'count': 0})
 
         # Getting sources (parsing m3u8) #
         print("\t- Getting sources...", end=' ')
+        done = 0
         for source in sources:
-            # Trying to parse m3u8
-            try:
-                playlist = m3u8.load(source['url'])
-            except ValueError:
-                # TODO: fix groups in some playlists ('group-title=')
-                continue
-            except HTTPError:
-                continue
-            except URLError:
+            # Progress
+            print(f"\r\t- Getting sources... \t{done}/{len(sources)}")
+
+            playlist = parser.load(source['url'])
+
+            if playlist is None:
+                source['last_online'] = source['last_online'].strftime("%Y-%m-%d")
                 continue
 
             # Updating sources
-            source['count'] = len(playlist.data['segments'])
+            source['count'] = len(playlist)
             source['last_online'] = datetime.now().date().strftime("%Y-%m-%d")
 
             # Adding urls to channels #
-            for segment in playlist.data['segments']:
-                # Normalising name
+            for segment in playlist:
                 # TODO: Refactor
+                # Normalising name
                 title, quality = self.fix_name(segment['title'])
 
                 # Searching channel in array
@@ -85,7 +76,7 @@ class Updater(Task):
 
                 # Creating new if not found
                 if not found:
-                    channels.append(Channel(name=title, url=(segment['uri'], quality)))
+                    channels.append(Channel(name=title, url=(segment['uri'], quality), source_id=source['id']))
         print("Done!")
 
         # Checking channels urls #
@@ -93,30 +84,26 @@ class Updater(Task):
 
         # Starting threads
         self.threads_started = True
-        thread_cleaner = Thread(target=self.thread_cleaner)
+        thread_cleaner = threading.Thread(target=self.thread_cleaner)
         thread_cleaner.start()
 
-        names = {}
-
+        done = 0
         for channel in channels:
+            # Printing progress
+            print(f'\r\t- Checking urls... \t{done}/{len(channels)} \t{len(self.threads)}', end='')
             # Waiting for vacant space
             while threading.active_count() >= 700:
                 time.sleep(1)
-            checker = Thread(target=channel.check)
+            # Adding thread
+            checker = threading.Thread(target=channel.check)
             self.threads.append(checker)
             self.threads[-1].start()
-            names[checker.name] = channel.name
-
-        print(str(names))
-        f = open('threads.txt', 'w')
-        f.write(str(names))
-        f.close()
+            done += 1
 
         # Waiting for ending
-        print(threading.active_count())
         self.threads_started = False
         thread_cleaner.join()
-        print(f"Done!")
+        print(f"\r\t- Checking urls... Done!")
 
         # Starting db connection
         self.DB.begin()
@@ -129,7 +116,7 @@ class Updater(Task):
         # Saving channels #
         print("\t- Saving channels...", end=" ")
         self.DB.run('channels.save', channels=channels)
-        print("Done!")
+        print("\r\t- Saving channels...Done!")
 
         # Closing db connection
         self.DB.end()

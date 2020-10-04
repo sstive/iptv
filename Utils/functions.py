@@ -20,7 +20,8 @@ def channels_get(db: Database, **kwargs):
                 name=db_channel[1],
                 theme=db_channel[2],
                 urls=db_channel[3],
-                online=db_channel[4]
+                online=db_channel[4],
+                source_id=db_channel[5]
             )
         )
     return channels
@@ -31,11 +32,12 @@ def channels_save(db: Database, **kwargs):
     Function for saving channels to database
     :key channels: List with channels, should be list
     """
+    done = 0
     for ch in kwargs['channels']:
+        # Progress
+        print(f"\r\t- Saving channels... \t{done}/{len(kwargs['channels'])}")
+
         db.insert_or_update('channels', **ch.get_dict())
-        # request = f"INSERT INTO channels (id, name, theme, urls, online) VALUES ({ch.cid}, '{ch.name}', {ch.theme}, \"{ch.get_urls()}\", {ch.get_online()}) " \
-        #          f"ON DUPLICATE KEY UPDATE name='{ch.name}', theme={ch.theme}, urls=\"{ch.get_urls()}\", online={ch.get_online()}"
-        # db.execute(request)
 
 # -------- #
 

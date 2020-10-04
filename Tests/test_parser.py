@@ -5,10 +5,17 @@ from Utils import parser
 class ParserTest(unittest.TestCase):
 
     def test_normal(self):
-        # TODO: get playlists from raw github
-        channels = parser.load('https://iptvmaster.ru/russia.m3u')
+        channels = parser.load('https://raw.githubusercontent.com/sstive/iptv/master/Tests/playlists/test_1.m3u8')
         print(channels)
-        print(len(channels))
+        self.assertListEqual(
+            [
+                {'title': ' Channel 1', 'uri': 'http://url1.test/ch1', 'group_title': 'Group 1'},
+                {'title': ' Channel 2', 'uri': 'http://url1.test/ch1', 'group_title': 'Group 2'},
+                {'title': ' Channel 3', 'uri': 'http://url1.test/ch3', 'group_title': ''},
+                {'title': ' Channel 4', 'uri': 'http://url1.test/ch4', 'group_title': 'Group 4'}
+            ],
+            channels
+        )
 
         # TODO: assert dict
 
@@ -23,3 +30,6 @@ class ParserTest(unittest.TestCase):
     def test_not_m3u(self):
         channels = parser.load('https://www.github.com/')
         self.assertIsNone(channels)
+
+    def test_empty_m3u(self):
+        channels = parser.load('https://raw.githubusercontent.com/sstive/iptv/master/Tests/playlists/test_1.m3u8')

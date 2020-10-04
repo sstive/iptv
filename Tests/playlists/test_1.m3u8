@@ -1,7 +1,0 @@
-#EXTM3U url-tvg="http://www.teleguide.info/"
-
-#EXTINF:-1 group-title="Group 1", Channel 1
-http://url1.test/ch1
-
-#EXTINF:10 group-title="Group 1" useless_tag="value", Channel 2
-http://url1.test/ch1

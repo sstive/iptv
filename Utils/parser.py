@@ -1,4 +1,8 @@
 import requests
+import shlex
+
+
+EMPTY_CHANNEL = {'title': "", 'uri': "", 'group_title': 0}
 
 
 def load(uri: str):
@@ -14,11 +18,10 @@ def load(uri: str):
     channels = []
 
     # Checking if it is m3u file
-    if lines[0][:7] != '#EXTM3U':
+    if len(lines) < 1 or len(lines[0]) < 7 or lines[0][:7] != '#EXTM3U':
         return None
 
-    group_title = ""
-    channel = {'title': "", 'uri': "", 'group_title': 0}
+    channel = EMPTY_CHANNEL
     filled = False
 
     for line in lines:
@@ -36,30 +39,28 @@ def load(uri: str):
             if len(parts) < 2 or ' ' in parts[0]:
                 continue
 
-            # Current group
+            # Channel group
             if parts[0] == '#EXTGRP':
-                group_title = parts[1].strip()
+                channel['group_title'] = parts[1].strip()
+
             # New channel
             elif parts[0] == '#EXTINF':
                 params, channel['title'] = parts[1].split(',', 1)
 
-                # Adding default group
-                channel['group_title'] = group_title
-
                 # Splitting params and removing length (-1)
-                params = params.split(' ')[1:]
+                params = shlex.split(params)[1:]
                 filled = True
 
                 for param in params:
                     param = param.split('=', 1)
                     if param[0] == 'group-title':
-                        channel['group_title'] = param[1][1:-1]
+                        channel['group_title'] = param[1]
 
         # URI of channel
         elif filled:
             channel['uri'] = line
             channels.append(channel)
-            channel = {}
+            channel = EMPTY_CHANNEL
             filled = False
 
     return channels

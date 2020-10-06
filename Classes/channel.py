@@ -9,6 +9,8 @@ def replace_symbols(s: str, *chars):
         elif type(char) is str:
             s = s.replace(char, '')
     return s
+
+
 # ------------------ #
 
 
@@ -17,30 +19,33 @@ QUALITIES = {
     "default": 'SD',
     'symbols': ['[', ']', '(', ')', '{', '}'],
     "names": ['SD', 'HD', 'FHD', 'QHD', 'UHD'],
+    # Reversed because in higher qualities more words
     "aliases": {
-        'HD': [
-            "hd",
-            "720p"
-        ],
-        'FHD': [
-            "fhd",
-            "1080p",
-            "full hd"
-        ],
-        'QHD': [
-            "qhd",
-            "2k",
-            "1440p"
-            "quad hd"
-        ],
         'UHD': [
             "uhd",
             "4k",
             "8k",
-            "ultra hd"
+            ["ultra", "hd"]
+        ],
+        'QHD': [
+            "qhd",
+            "2k",
+            "1440p",
+            ["quad", "hd"]
+        ],
+        'FHD': [
+            "fhd",
+            "1080p",
+            ["full", "hd"]
+        ],
+        'HD': [
+            "hd",
+            "720p"
         ]
     }
 }
+
+
 # -------------------- #
 
 
@@ -168,11 +173,6 @@ class Channel:
     def get_urls(self):
         return ';'.join(list(map(lambda urls: ','.join(urls), self.urls)))
 
-    # Function for comparing names
-    def compare(self, title):
-        # TODO: Remove hd, fhd, etc and find quality
-        return title == self.name
-
     # Checking urls
     def check(self):
         for i in range(0, len(self.urls)):
@@ -208,6 +208,7 @@ class Channel:
             del d[k]
 
         return d
+
     # -------- #
 
     # Static #
@@ -217,14 +218,37 @@ class Channel:
         name = replace_symbols(name, ('_', ' '))
 
         # Finding quality
-        fixed_name = replace_symbols(name, *QUALITIES['symbols']).lower()
+        words = name.split()
+        fixed_words = replace_symbols(name, *QUALITIES['symbols']).lower().split()
         quality = 0
+        found = False
 
         for q, aliases in QUALITIES['aliases'].items():
             for alias in aliases:
-                if (alias + ' ' or ' ' + alias) in fixed_name:
+                # Checking composing aliases
+                if (
+                        type(alias) is list and
+                        alias[0] in fixed_words and alias[1] in fixed_words and
+                        fixed_words.index(alias[0]) == fixed_words.index(alias[1]) - 1
+                ):
                     quality = QUALITIES['names'].index(q)
+
+                    # Removing composing quality text
+                    if fixed_words.index(alias[1]) == len(fixed_words) - 1:
+                        words = words[:-2]
+                        found = True
                     break
-        # TODO: Remove single HD, FHD text
-        return name, quality
+                # Checking simple single word alias
+                elif type(alias) is str and alias in fixed_words:
+                    quality = QUALITIES['names'].index(q)
+
+                    # Removing single quality text
+                    if fixed_words.index(alias) == len(fixed_words) - 1:
+                        words = words[:-1]
+                        found = True
+                    break
+            if found:
+                break
+
+        return ' '.join(words), quality
     # ------ #

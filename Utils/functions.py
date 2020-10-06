@@ -32,12 +32,31 @@ def channels_save(db: Database, **kwargs):
     Function for saving channels to database
     :key channels: List with channels, should be list
     """
+    # request = ""
+
     done = 0
     for ch in kwargs['channels']:
-        # Progress
-        print(f"\r\t- Saving channels... \t{done}/{len(kwargs['channels'])}")
-
+        # TODO: Add one request
+        done += 1
+        print(f"\r\t- Saving channels... \t{done}/{len(kwargs['channels'])}", end='')
         db.insert_or_update('channels', **ch.get_dict())
+
+        """values = ch.get_dict()
+        values['_request'] = True
+        request += db.insert_or_update('channels', **values)
+
+        if done % 5:
+            # Progress
+            done += 5
+            print(f"\r\t- Saving channels... \t{done}/{len(kwargs['channels'])}", end='')
+
+            print(request)
+            db.execute(request)
+            request = ""
+        """
+
+    # if request != "":
+    #     db.execute(request)
 
 # -------- #
 

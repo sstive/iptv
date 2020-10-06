@@ -13,6 +13,8 @@ class Updater(task.Task):
 
     def thread_cleaner(self):
         while len(self.threads) > 0 or self.threads_started:
+            if not self.threads_started:
+                print(f'\r\t- Checking urls... Done! \t{len(self.threads)}', end='')
             i = 0
             time.sleep(1)
             while i < len(self.threads):
@@ -21,11 +23,6 @@ class Updater(task.Task):
                 else:
                     i += 1
     # ------- #
-
-    @staticmethod
-    def fix_name(name):
-        # TODO: Prepare name (Remove HD, ", etc)
-        return name, 0
 
     def execute(self):
         print("Executing source updater...")
@@ -44,11 +41,11 @@ class Updater(task.Task):
             sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-01-01', 'count': 0})
 
         # Getting sources (parsing m3u8) #
-        print("\t- Getting sources...", end=' ')
         done = 0
         for source in sources:
             # Progress
-            print(f"\r\t- Getting sources... \t{done}/{len(sources)}")
+            done += 1
+            print(f"\r\t- Getting sources... \t{done}/{len(sources)}", end='')
 
             playlist = parser.load(source['url'])
 
@@ -69,7 +66,7 @@ class Updater(task.Task):
                 # Searching channel in array
                 found = False
                 for channel in channels:
-                    if channel.compare(title):
+                    if channel.name == title:
                         found = True
                         channel.add_url(segment['uri'], quality)
                         break
@@ -77,10 +74,9 @@ class Updater(task.Task):
                 # Creating new if not found
                 if not found:
                     channels.append(Channel(name=title, url=(segment['uri'], quality), source_id=source['id']))
-        print("Done!")
+        print("")
 
         # Checking channels urls #
-        print("\t- Checking urls...", end=" ")
 
         # Starting threads
         self.threads_started = True
@@ -90,6 +86,7 @@ class Updater(task.Task):
         done = 0
         for channel in channels:
             # Printing progress
+            done += 1
             print(f'\r\t- Checking urls... \t{done}/{len(channels)} \t{len(self.threads)}', end='')
             # Waiting for vacant space
             while threading.active_count() >= 700:
@@ -98,12 +95,11 @@ class Updater(task.Task):
             checker = threading.Thread(target=channel.check)
             self.threads.append(checker)
             self.threads[-1].start()
-            done += 1
 
         # Waiting for ending
         self.threads_started = False
         thread_cleaner.join()
-        print(f"\r\t- Checking urls... Done!")
+        print(f'\r\t- Checking urls... Done!')
 
         # Starting db connection
         self.DB.begin()
@@ -114,9 +110,8 @@ class Updater(task.Task):
         print("Done!")
 
         # Saving channels #
-        print("\t- Saving channels...", end=" ")
         self.DB.run('channels.save', channels=channels)
-        print("\r\t- Saving channels...Done!")
+        print("")
 
         # Closing db connection
         self.DB.end()

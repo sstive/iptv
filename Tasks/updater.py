@@ -64,7 +64,7 @@ class Updater(task.Task):
             for segment in playlist:
                 # TODO: Refactor
                 # Normalising name
-                title, quality = self.fix_name(segment['title'])
+                title, quality = Channel.fix_name(segment['title'])
 
                 # Searching channel in array
                 found = False

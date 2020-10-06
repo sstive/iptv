@@ -1,6 +1,49 @@
 import urllib.request
 
 
+# Additional methods #
+def replace_symbols(s: str, *chars):
+    for char in chars:
+        if type(char) is tuple:
+            s = s.replace(char[0], char[1])
+        elif type(char) is str:
+            s = s.replace(char, '')
+    return s
+# ------------------ #
+
+
+# Additional variables #
+QUALITIES = {
+    "default": 'SD',
+    'symbols': ['[', ']', '(', ')', '{', '}'],
+    "names": ['SD', 'HD', 'FHD', 'QHD', 'UHD'],
+    "aliases": {
+        'HD': [
+            "hd",
+            "720p"
+        ],
+        'FHD': [
+            "fhd",
+            "1080p",
+            "full hd"
+        ],
+        'QHD': [
+            "qhd",
+            "2k",
+            "1440p"
+            "quad hd"
+        ],
+        'UHD': [
+            "uhd",
+            "4k",
+            "8k",
+            "ultra hd"
+        ]
+    }
+}
+# -------------------- #
+
+
 class Channel:
 
     def __init__(self, **params):
@@ -170,9 +213,18 @@ class Channel:
     # Static #
     @staticmethod
     def fix_name(name: str):
-        # Symbols to replace
-        replace_chars = [('_', ''), ('"', '\\"')]
-        for char in replace_chars:
-            name = name.replace(char[0], char[1])
+        # Replacing symbols
+        name = replace_symbols(name, ('_', ' '))
 
+        # Finding quality
+        fixed_name = replace_symbols(name, *QUALITIES['symbols']).lower()
+        quality = 0
+
+        for q, aliases in QUALITIES['aliases'].items():
+            for alias in aliases:
+                if (alias + ' ' or ' ' + alias) in fixed_name:
+                    quality = QUALITIES['names'].index(q)
+                    break
+        # TODO: Remove single HD, FHD text
+        return name, quality
     # ------ #

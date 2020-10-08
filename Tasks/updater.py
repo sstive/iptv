@@ -24,6 +24,7 @@ class Updater(task.Task):
                     i += 1
     # ------- #
 
+    # TODO: split on functions
     def execute(self):
         print("Executing source updater...")
 

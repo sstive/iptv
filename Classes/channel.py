@@ -232,20 +232,20 @@ class Channel:
                         fixed_words.index(alias[0]) == fixed_words.index(alias[1]) - 1
                 ):
                     quality = QUALITIES['names'].index(q)
+                    found = True
 
                     # Removing composing quality text
                     if fixed_words.index(alias[1]) == len(fixed_words) - 1:
                         words = words[:-2]
-                        found = True
                     break
                 # Checking simple single word alias
                 elif type(alias) is str and alias in fixed_words:
                     quality = QUALITIES['names'].index(q)
+                    found = True
 
                     # Removing single quality text
                     if fixed_words.index(alias) == len(fixed_words) - 1:
                         words = words[:-1]
-                        found = True
                     break
             if found:
                 break

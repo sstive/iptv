@@ -1,11 +1,13 @@
 import time
 import threading
 from datetime import datetime
-from Utils import task, parser
-from Classes import Channel
+from Utils import parser, utils
+from Classes import Channel, task
 
 
 class Updater(task.Task):
+    # Task id
+    tid = 1
 
     # Threads #
     threads = []
@@ -24,24 +26,32 @@ class Updater(task.Task):
                     i += 1
     # ------- #
 
-    # TODO: split on functions
-    def execute(self):
+    # TODO: separate on functions
+    def _execute(self):
+        # Step 1: Get sources and channels from database
+        # Step 2: Get urls from sources and add them to channels
+        # Step 3: Check channel's urls
+        # Step 4: Save channels and sources to database
+
         print("Executing source updater...")
+
+        # TODO: update themes in database
 
         # Getting objects from database #
         print("\t- Getting objects from database...", end=' ')
+        themes = self.DB.run('themes.get')
         channels = self.DB.run('channels.get')
         sources = self.DB.run('sources.get')
         print("Done!")
 
-        # Disconnect from database
-        self.DB.end()
-
-        # Adding default source
-        if len(sources) == 0:
-            sources.append({'url': 'https://iptvmaster.ru/russia.m3u', 'last_online': '2020-01-01', 'count': 0})
+        # Adding default themes
+        print("\t- Checking themes...", end=' ')
+        if len(themes) < 13 or themes[:12].count(None) > 1:
+            self.DB.run('themes.add_default')
+        print("Done!")
 
         # Getting sources (parsing m3u8) #
+        print("\t- Getting sources...", end=' ')
         done = 0
         for source in sources:
             # Progress
@@ -74,8 +84,24 @@ class Updater(task.Task):
 
                 # Creating new if not found
                 if not found:
-                    channels.append(Channel(name=title, url=(segment['uri'], quality), source_id=source['id']))
-        print("")
+                    # Adding new theme
+                    theme_id = None
+                    theme = utils.fix_theme(segment['group_title'])
+                    if theme is not None:
+                        if theme in themes:
+                            theme_id = themes.index(theme)
+                        else:
+                            theme_id = self.DB.run('themes.add', theme=theme)
+                            while len(themes) < theme_id + 1:
+                                themes.append(None)
+                            themes[theme_id] = theme
+                    # Creating new channel
+                    channels.append(Channel(name=title, theme=theme_id, url=(segment['uri'], quality), source_id=source['id']))
+
+        # Disconnecting from database
+        self.DB.end()
+
+        print("\r\t- Getting sources... Done!")
 
         # Checking channels urls #
 
@@ -117,4 +143,4 @@ class Updater(task.Task):
         # Closing db connection
         self.DB.end()
 
-        print("Done!")
+        print("Done!\n")

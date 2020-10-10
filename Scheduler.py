@@ -1,13 +1,14 @@
 from DBHelper import Database
-from Tasks import *
+from Tasks import TASKS
 
 # Custom functions for database
-from Utils.functions import FUNCS
+from Utils.db_functions import FUNCS
 
 
 if __name__ == '__main__':
     # Init database
-    DB = Database('Config/Database/Database.json', functions=FUNCS)
+    DB = Database('Config/Database.json', functions=FUNCS)
 
-    Updater(1, DB).execute()
-    MailManager(2, DB).execute()
+    for task in TASKS:
+        task.add_database(DB)
+        task.run()

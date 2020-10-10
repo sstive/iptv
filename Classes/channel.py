@@ -1,59 +1,14 @@
 import urllib.request
-
-
-# Additional methods #
-def replace_symbols(s: str, *chars):
-    for char in chars:
-        if type(char) is tuple:
-            s = s.replace(char[0], char[1])
-        elif type(char) is str:
-            s = s.replace(char, '')
-    return s
-
-
-# ------------------ #
-
-
-# Additional variables #
-QUALITIES = {
-    "default": 'SD',
-    'symbols': ['[', ']', '(', ')', '{', '}'],
-    "names": ['SD', 'HD', 'FHD', 'QHD', 'UHD'],
-    # Reversed because in higher qualities more words
-    "aliases": {
-        'UHD': [
-            "uhd",
-            "4k",
-            "8k",
-            ["ultra", "hd"]
-        ],
-        'QHD': [
-            "qhd",
-            "2k",
-            "1440p",
-            ["quad", "hd"]
-        ],
-        'FHD': [
-            "fhd",
-            "1080p",
-            ["full", "hd"]
-        ],
-        'HD': [
-            "hd",
-            "720p"
-        ]
-    }
-}
-
-
-# -------------------- #
+from Utils.utils import replace_symbols
+from Config.variables import QUALITIES, THEMES
 
 
 class Channel:
 
-    def __init__(self, **params):
+    def __init__(self, *db_params, **params):
         """
         Class for channel, contain info about channel and functions for it.
+        :param db_params: Array with params, loaded from database
         :param params: Params of channel
 
         :key name: Title of channel, should be str
@@ -65,7 +20,17 @@ class Channel:
         :key url: Param for adding default url (url, quality), should be tuple
         :key source: Id of source
         """
-        # TODO: Refactor
+
+        # Converting db_params
+        if len(db_params) >= 6:
+            params['id'] = db_params[0]
+            params['name'] = db_params[1]
+            params['theme'] = db_params[2]
+            params['urls'] = db_params[3]
+            params['online'] = db_params[4]
+            params['source_id'] = db_params[5]
+
+        # Cutting name
         if len(params['name']) < 50:
             self.name = params['name']
         else:
@@ -78,7 +43,7 @@ class Channel:
             self.cid = None
 
         # Theme
-        if 'theme' in params.keys():
+        if 'theme' in params.keys() and params['theme'] is not None:
             self.theme = params['theme']
         else:
             self.theme = None
@@ -114,8 +79,11 @@ class Channel:
             self.urls[q].append(url)
 
     def __find_theme__(self):
-        # TODO: find theme of channel
-        pass
+        self.theme = THEMES['default']
+        for t_name, channels in THEMES['themes'].items():
+            if self.name in channels:
+                self.theme = list(THEMES['themes'].keys()).index(t_name)
+                break
 
     # Convert urls from string to dict
     def __convert_urls__(self):
@@ -149,6 +117,16 @@ class Channel:
             self.online.append(False)
         self.online.reverse()
 
+    # Return online as number
+    def __get_online__(self):
+        online = 0
+        for q in self.online:
+            if q:
+                online += 1
+            online *= 2
+        online //= 2
+        return online
+
     # Public #
     def add_url(self, url, quality=0):
         # If quality is string
@@ -159,19 +137,21 @@ class Channel:
         else:
             self.urls[quality].append(url)
 
-    # Return online as number
-    def get_online(self):
-        online = 0
-        for q in self.online:
-            if q:
-                online += 1
-            online *= 2
-        online //= 2
-        return online
-
     # Convert urls to string for database
     def get_urls(self):
-        return ';'.join(list(map(lambda urls: ','.join(urls), self.urls)))
+        urls = ""
+        for q in self.urls:
+            urls += ','.join(q)
+            urls += ';'
+        return urls
+
+    def get_url(self, quality):
+        url = None
+        for i in range(quality, -1, -1):
+            if self.online[i]:
+                url = self.urls[i][0]
+                break
+        return url
 
     # Checking urls
     def check(self):
@@ -193,7 +173,7 @@ class Channel:
             'name': self.name,
             'theme': self.theme,
             'urls': self.get_urls(),
-            'online': self.get_online(),
+            'online': self.__get_online__(),
             'source_id': self.source_id
         }
 

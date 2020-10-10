@@ -1,8 +1,10 @@
-from Utils.task import Task
+from Classes import Task
 
 
 # TODO: Send confirmation email and delete old tokens
 class MailManager(Task):
+    # Task id
+    tid = 2
 
-    def execute(self):
+    def _execute(self):
         pass

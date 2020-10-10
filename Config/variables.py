@@ -1,6 +1,37 @@
-{
-  "Default": "Прочие",
-  "Themes": {
+QUALITIES = {
+    "default": 'SD',
+    'symbols': ['[', ']', '(', ')', '{', '}'],
+    "names": ['SD', 'HD', 'FHD', 'QHD', 'UHD'],
+    # Reversed because in higher qualities more words
+    "aliases": {
+        'UHD': [
+            "uhd",
+            "4k",
+            "8k",
+            ["ultra", "hd"]
+        ],
+        'QHD': [
+            "qhd",
+            "2k",
+            "1440p",
+            ["quad", "hd"]
+        ],
+        'FHD': [
+            "fhd",
+            "1080p",
+            ["full", "hd"]
+        ],
+        'HD': [
+            "hd",
+            "720p"
+        ]
+    }
+}
+
+THEMES = {
+  "default": None,
+  "themes": {
+    "": [],
     "Деловые": [
       "рбк",
       "cc 2",

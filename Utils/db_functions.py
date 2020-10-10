@@ -44,7 +44,7 @@ def channels_get(db: Database):
     Function for getting channels from database
     :return: List with channels
     """
-    resp = db.select('channels', '*')
+    resp = db.select('channels', '*', "ORDER BY id")
     channels = []
 
     for db_channel in resp:

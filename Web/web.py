@@ -8,9 +8,14 @@ app = Flask(__name__)
 # --- Playlists --- #
 @app.route('/p/<pl_id>')
 def get_playlist(pl_id):
-    playlist = generate_playlist(int(pl_id))
+    try:
+        pl_id = int(pl_id)
+    except ValueError:
+        return "Bad id", 400
+
+    playlist = generate_playlist(pl_id)
     if playlist is not None:
-        return Response('\n'.join(playlist), mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
+        return Response(playlist, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
     else:
         return "Not found", 404
 # ================= #

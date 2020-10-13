@@ -1,10 +1,14 @@
 import os
-
-from flask import Flask, Response, render_template, send_file, send_from_directory, url_for
+from flask import Flask, Response, render_template, send_from_directory
+from DBHelper import Database
+from Utils.db_functions import FUNCS
 from Utils.generator import generate_playlist
 
 
 app = Flask(__name__, static_folder='files')
+
+db = Database('../Config/Database.json', functions=FUNCS)
+db.end()
 
 
 # --- Playlists --- #
@@ -15,7 +19,10 @@ def get_playlist(pl_id):
     except ValueError:
         return "Bad id", 400
 
-    playlist = generate_playlist(pl_id)
+    db.begin()
+    playlist = generate_playlist(pl_id, db)
+    db.end()
+
     if playlist is not None:
         return Response(playlist, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
     else:
@@ -24,24 +31,61 @@ def get_playlist(pl_id):
 
 
 # ----- Pages ----- #
+# Login
 @app.route('/')
 def index():
-    # Todo: make page
-    return render_template("login.html")
+    return render_template("login.html", fail=False)
 
 
-@app.route('/login')
+@app.route('/', methods=['POST'])
 def login():
-    # Todo: make page
-    return 'login'
+    return render_template("login.html", fail=True)
 # ================= #
 
 
-# ----- Other ----- #
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-# ================= #
+# ----- Database showing ----- #
+@app.route('/database')
+def database():
+    return render_template('database.html')
+
+
+@app.route('/database/<table>')
+def db_tables(table):
+    tables = {
+        'channels': [
+            {'name': "Name", 'index': 1},
+            {'name': "Id", 'index': 0},
+            {'name': "Theme", 'index': 2},
+            {'name': "Source id", 'index': 5}
+        ],
+        'sources': [
+            {'name': "ID", 'index': 0},
+            {'name': "URL", 'index': 1},
+            {'name': "Last online", 'index': 2},
+            {'name': "Count", 'index': 3}
+        ],
+        'themes': [
+            {'name': "ID", 'index': 0},
+            {'name': "Name", 'index': 1}
+        ],
+    }
+
+    if table not in tables.keys():
+        return 'Not found', 404
+
+    db.begin()
+    data = db.select(table, '*')
+    db.end()
+
+    return render_template('table.html', data=data, columns=tables[table])
+# ============================ #
+
+
+# ----- Adding values ----- #
+@app.route('/add_playlist', methods=['GET'])
+def add_playlist():
+    return 'dev'
+# ========================= #
 
 
 if __name__ == '__main__':

@@ -1,75 +1,24 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-	<title>IPTV</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Login - IPTV</title>
 
-	<link rel="shortcut icon" href="{{ url_for('files', filename='favicon.ico') }}">
-
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/files/login/vendor/bootstrap/css/bootstrap.min.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/files/login/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/files/login/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
-<!--===============================================================================================-->
-
-	<link rel="stylesheet" type="text/css" href="/files/login/css/util.css">
-	<link rel="stylesheet" type="text/css" href="/files/login/css/main.css">
-<!--===============================================================================================-->
+    <link rel="shortcut icon" href="/files/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/files/login/styles.css">
 </head>
 <body>
-	
-	<div class="limiter">
-		<div class="container-login100">
-			<div class="wrap-login100 p-t-50 p-b-90">
-				<form class="login100-form validate-form flex-sb flex-w">
-					<span class="login100-form-title p-b-51">
-						Войдите
-					</span>
-
-					
-					<div class="wrap-input100 validate-input m-b-16" data-validate = "Необходимо имя пользователя">
-						<input class="input100" type="text" name="username" placeholder="Пользователь">
-						<span class="focus-input100"></span>
-					</div>
-					
-					
-					<div class="wrap-input100 validate-input m-b-16" data-validate = "Необходим пароль">
-						<input class="input100" type="password" name="pass" placeholder="Пароль">
-						<span class="focus-input100"></span>
-					</div>
-					
-					<div class="flex-sb-m w-full p-t-3 p-b-24">
-						<div class="contact100-form-checkbox">
-							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
-							<label class="label-checkbox100" for="ckb1">
-								Запомнить меня
-							</label>
-						</div>
-
-						<div>
-							<a href="/reset_password" class="txt1">
-								Забыли пароль?
-							</a>
-						</div>
-					</div>
-
-					<div class="container-login100-form-btn m-t-17">
-						<button class="login100-form-btn">
-							Войти
-						</button>
-					</div>
-
-				</form>
-			</div>
-		</div>
-	</div>
-	
-
-	<div id="dropDownSelect1"></div>
-	<script src="/files/login/js/main.js"></script>
-
+    <div class="login-page">
+        <div class="form">
+            <form class="login-form" method="POST">
+                <input name="username" type="text" placeholder="username" required/>
+                <input name="password" type="password" placeholder="password" required/>
+                <button>login</button>
+                {% if fail %}
+                <p class="message">Wrong Login or password!</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
 </body>
 </html>

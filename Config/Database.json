@@ -40,13 +40,9 @@
 
     "playlists": {
       "id": "KEY",
-      "owner": "FOREIGN KEY",
       "quality": ["SMALLINT", "NOT NULL", "DEFAULT 0"],
       "channels": ["TEXT"],
-      "creating_date": ["DATE"],
-      "editing_date": ["DATE"],
-      "del_channels": ["BOOLEAN", "NOT NULL", "DEFAULT false"],
-      "FOREIGN KEY": ["owner", "users(id)"]
+      "del_channels": ["BOOLEAN", "NOT NULL", "DEFAULT false"]
     },
 
     "tokens": {

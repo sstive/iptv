@@ -1,5 +1,3 @@
-from Classes import Channel
-from Utils.db_functions import FUNCS
 from DBHelper import Database
 from os import environ as env
 
@@ -22,17 +20,15 @@ def channel_to_m3u8(channel, themes, quality, remove):
     return resp
 
 
-def generate_playlist(pl_id: int):
-    db = Database('../Config/Database.json', functions=FUNCS)
-
+def generate_playlist(pl_id: int, db: Database):
     resp = "#EXTM3U\n"
     themes = db.run('themes.get')
-    channels = db.run('channels.get')
+    channels = db.run('table.get')
 
     if pl_id == 0:
         request = [('1,2,3', 0, True)]
     else:
-        request = db.select('playlists', ['channels', 'quality', 'del_channels'], f"WHERE id = {pl_id}")
+        request = db.select('playlists', ['table', 'quality', 'del_channels'], f"WHERE id = {pl_id}")
 
     if len(request) < 1:
         return None
@@ -42,7 +38,7 @@ def generate_playlist(pl_id: int):
 
     # TODO: remove repeating code
 
-    # Adding main channels
+    # Adding main table
     for ch_id in channels_id:
         # Getting channel from list
         channel = channels[ch_id]
@@ -51,7 +47,7 @@ def generate_playlist(pl_id: int):
 
         resp += channel_to_m3u8(channel, themes, quality, remove)
 
-    # Adding other channels
+    # Adding other table
     for channel in channels:
         if channel is not None:
             resp += channel_to_m3u8(channel, themes, quality, remove)

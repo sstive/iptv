@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Channels - IPTV</title>
+
+    <link rel="stylesheet" href="/files/table/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="table">
+            <div class="table-header">
+                {% for column in columns %}
+                    <div class="header__item"><a class="filter__link">{{ column['name'] }}</a></div>
+                {% endfor %}
+            </div>
+            <div class="table-content">
+                {% for row in data %}
+                    <div class="table-row">
+                        {% for column in columns %}
+                            <div class="table-data">{{ row[column['index']] }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <br/>
+    <a href="/database">Go back</a>
+</body>
+</html>

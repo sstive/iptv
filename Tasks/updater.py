@@ -28,10 +28,10 @@ class Updater(task.Task):
 
     # TODO: separate on functions
     def _execute(self):
-        # Step 1: Get sources and channels from database
-        # Step 2: Get urls from sources and add them to channels
+        # Step 1: Get sources and table from database
+        # Step 2: Get urls from sources and add them to table
         # Step 3: Check channel's urls
-        # Step 4: Save channels and sources to database
+        # Step 4: Save table and sources to database
 
         print("Executing source updater...")
 
@@ -40,7 +40,7 @@ class Updater(task.Task):
         # Getting objects from database #
         print("\t- Getting objects from database...", end=' ')
         themes = self.DB.run('themes.get')
-        channels = self.DB.run('channels.get')
+        channels = self.DB.run('table.get')
         sources = self.DB.run('sources.get')
         print("Done!")
 
@@ -68,7 +68,7 @@ class Updater(task.Task):
             source['count'] = len(playlist)
             source['last_online'] = datetime.now().date().strftime("%Y-%m-%d")
 
-            # Adding urls to channels #
+            # Adding urls to table #
             for segment in playlist:
                 # TODO: Refactor
                 # Normalising name
@@ -103,7 +103,7 @@ class Updater(task.Task):
 
         print("\r\t- Getting sources... Done!")
 
-        # Checking channels urls #
+        # Checking table urls #
 
         # Starting threads
         self.threads_started = True
@@ -136,8 +136,8 @@ class Updater(task.Task):
         self.DB.run('sources.save', sources=sources)
         print("Done!")
 
-        # Saving channels #
-        self.DB.run('channels.save', channels=channels)
+        # Saving table #
+        self.DB.run('table.save', channels=channels)
         print("")
 
         # Closing db connection

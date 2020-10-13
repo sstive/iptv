@@ -23,7 +23,7 @@ def channel_to_m3u8(channel, themes, quality, remove):
 
 
 def generate_playlist(pl_id: int):
-    db = Database('Config/Database.json', functions=FUNCS)
+    db = Database('../Config/Database.json', functions=FUNCS)
 
     resp = "#EXTM3U\n"
     themes = db.run('themes.get')

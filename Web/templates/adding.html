@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add - IPTV</title>
+
+    <link rel="shortcut icon" href="/files/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div align="center">
+        <h1>Add playlist</h1>
+        <form action="/add_playlist" method="POST">
+            <input required type="number" name="quality" placeholder="quality" min="0" max="4"><br/>
+            <input required type="text" name="channels" placeholder="channels"><br/>
+            <input type="checkbox" name="del_channels">Delete channels<br/>
+            <input required type="text" name="token" placeholder="Token"><br/>
+            <input type="submit">
+        </form>
+        <h1>Add source</h1>
+        <form action="/add_source" method="POST">
+            <input required type="text" name="url" placeholder="URL"><br/>
+            <input required type="text" name="token" placeholder="Token"><br/>
+            <input type="submit">
+        </form>
+    </div>
+</body>
+</html>

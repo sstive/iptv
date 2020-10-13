@@ -2,18 +2,23 @@ from DBHelper import Database
 from os import environ as env
 
 
+# Function to generating m3u8 string of channel
 def channel_to_m3u8(channel, themes, quality, remove):
     resp = ""
     url = channel.get_url(quality)
+
+    # Adding or not empty urls
     if url is None:
         if remove:
             return ""
         else:
-            url = env['URL'] + '/picture/not_found'
+            url = env['URL'] + '/files/images/not_found.jpg'
 
+    # Adding theme
     if channel.theme is not None:
         resp += f"#EXTGRP:{themes[channel.theme]}\n"
 
+    # Adding channel
     resp += f"#EXTINF:-1,{channel.name}\n"
     resp += url + '\n'
 
@@ -21,24 +26,30 @@ def channel_to_m3u8(channel, themes, quality, remove):
 
 
 def generate_playlist(pl_id: int, db: Database):
+    # Adding header
     resp = "#EXTM3U\n"
+
+    # Getting objects from database
     themes = db.run('themes.get')
-    channels = db.run('table.get')
+    channels = db.run('channels.get')
 
     if pl_id == 0:
+        # Default playlist
         request = [('1,2,3', 0, True)]
     else:
-        request = db.select('playlists', ['table', 'quality', 'del_channels'], f"WHERE id = {pl_id}")
+        # Getting playlist from database
+        request = db.select('playlists', ['channels', 'quality', 'del_channels'], f"WHERE id = {pl_id}")
 
+    # Playlist could be empty
     if len(request) < 1:
         return None
 
+    # Getting info about playlist
     channels_id, quality, remove = request[0]
+    # Converting channels ids from str to list
     channels_id = list(map(int, channels_id.split(',')))
 
-    # TODO: remove repeating code
-
-    # Adding main table
+    # Adding main channels
     for ch_id in channels_id:
         # Getting channel from list
         channel = channels[ch_id]
@@ -47,7 +58,7 @@ def generate_playlist(pl_id: int, db: Database):
 
         resp += channel_to_m3u8(channel, themes, quality, remove)
 
-    # Adding other table
+    # Adding other channels
     for channel in channels:
         if channel is not None:
             resp += channel_to_m3u8(channel, themes, quality, remove)

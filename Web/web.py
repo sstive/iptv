@@ -1,9 +1,8 @@
-import os
-from flask import Flask, Response, render_template, send_from_directory
+from os import environ as env
+from flask import Flask, Response, render_template, request, redirect
 from DBHelper import Database
 from Utils.db_functions import FUNCS
 from Utils.generator import generate_playlist
-
 
 app = Flask(__name__, static_folder='files')
 
@@ -24,14 +23,17 @@ def get_playlist(pl_id):
     db.end()
 
     if playlist is not None:
-        return Response(playlist, mimetype='text/m3u8', headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
+        return Response(playlist, mimetype='text/m3u8',
+                        headers={'Content-disposition': 'attachment; filename=playlist.m3u8'})
     else:
         return "Not found", 404
+
+
 # ================= #
 
 
 # ----- Pages ----- #
-# Login
+# TODO: make authorization
 @app.route('/')
 def index():
     return render_template("login.html", fail=False)
@@ -40,6 +42,8 @@ def index():
 @app.route('/', methods=['POST'])
 def login():
     return render_template("login.html", fail=True)
+
+
 # ================= #
 
 
@@ -68,6 +72,12 @@ def db_tables(table):
             {'name': "ID", 'index': 0},
             {'name': "Name", 'index': 1}
         ],
+        'playlists': [
+            {'name': "ID", 'index': 0},
+            {'name': "Quality", 'index': 1},
+            {'name': "Channels", 'index': 2},
+            {'name': "Delete", 'index': 3}
+        ],
     }
 
     if table not in tables.keys():
@@ -78,13 +88,55 @@ def db_tables(table):
     db.end()
 
     return render_template('table.html', data=data, columns=tables[table])
+
+
 # ============================ #
 
 
 # ----- Adding values ----- #
-@app.route('/add_playlist', methods=['GET'])
+@app.route('/add')
+def add_values():
+    return render_template('adding.html')
+
+
+@app.route('/add_playlist', methods=['POST'])
 def add_playlist():
-    return 'dev'
+    if 'token' not in request.form.keys() or request.form.get('token') != env['TOKEN']:
+        return 'Not allowed', 403
+
+    if 'quality' not in request.form.keys() or 'channels' not in request.form.keys():
+        return 'not enough args! (needs quality, channels, delete)', 400
+
+    db.begin()
+    db.insert(
+        'playlists',
+        quality=int(request.form['quality']),
+        channels=request.form['channels'].replace(' ', ''),
+        del_channels=('del_channels' in request.form.keys())
+    )
+    db.end()
+
+    return redirect("/database/playlists")
+
+
+@app.route('/add_source', methods=['POST'])
+def add_source():
+    if 'token' not in request.form.keys() or request.form['token'] != env['TOKEN']:
+        return 'Not allowed', 403
+
+    if 'url' not in request.form.keys():
+        return 'not enough args! (needs url)', 400
+
+    db.begin()
+    db.insert(
+        'sources',
+        url=request.form['url'],
+    )
+    db.end()
+
+    return redirect("/database/sources")
+
+
 # ========================= #
 
 

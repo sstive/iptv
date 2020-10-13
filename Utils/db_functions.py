@@ -41,10 +41,10 @@ def themes_add_default(db: Database):
 # Channels #
 def channels_get(db: Database):
     """
-    Function for getting table from database
-    :return: List with table
+    Function for getting channels from database
+    :return: List with channels
     """
-    resp = db.select('table', '*', "ORDER BY id")
+    resp = db.select('channels', '*', "ORDER BY id")
     channels = []
 
     for db_channel in resp:
@@ -54,16 +54,16 @@ def channels_get(db: Database):
 
 def channels_save(db: Database, **kwargs):
     """
-    Function for saving table to database
-    :key channels: List with table, should be list
+    Function for saving channels to database
+    :key channels: List with channels, should be list
     """
     done = 0
-    for ch in kwargs['table']:
+    for ch in kwargs['channels']:
         # TODO: Remake with single request
         done += 1
-        print(f"\r\t- Saving table... \t{done}/{len(kwargs['table'])}", end='')
-        db.insert_or_update('table', **ch.get_dict())
-    print(f"\r\t- Saving table... Done!")
+        print(f"\r\t- Saving channels... \t{done}/{len(kwargs['channels'])}", end='')
+        db.insert_or_update('channels', **ch.get_dict())
+    print(f"\r\t- Saving channels... Done!")
 # -------- #
 
 
@@ -113,8 +113,8 @@ FUNCS = {
     'themes.add': themes_add,
     'themes.add_default': themes_add_default,
     # Channels
-    'table.get': channels_get,
-    'table.save': channels_save,
+    'channels.get': channels_get,
+    'channels.save': channels_save,
     # Sources
     'sources.get': sources_get,
     'sources.save': sources_save,

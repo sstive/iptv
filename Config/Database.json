@@ -1,12 +1,4 @@
 {
-  "connection": {
-    "db": "iptv",
-    "port": 3306,
-    "host": "localhost",
-    "user": "root",
-    "password": ""
-  },
-
   "tables": {
     "sources": {
       "id": "KEY",

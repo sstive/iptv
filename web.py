@@ -4,9 +4,9 @@ from DBHelper import Database
 from Utils.db_functions import FUNCS
 from Utils.generator import generate_playlist
 
-app = Flask(__name__, static_folder='files')
+app = Flask(__name__, static_folder='Web/files', template_folder='Web/templates')
 
-db = Database('../Config/Database.json', functions=FUNCS)
+db = Database('Config/Database.json', functions=FUNCS)
 db.end()
 
 
@@ -77,6 +77,11 @@ def db_tables(table):
             {'name': "Quality", 'index': 1},
             {'name': "Channels", 'index': 2},
             {'name': "Delete", 'index': 3}
+        ],
+        'tasks': [
+            {'name': "ID", 'index': 0},
+            {'name': "Last execution", 'index': 1},
+            {'name': "Error", 'index': 2}
         ],
     }
 

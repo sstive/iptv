@@ -1,3 +1,4 @@
 [submodule "DBHelper"]
 	path = DBHelper
 	url = https://github.com/sstive/DBHelper.git
+	branch = master

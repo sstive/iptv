@@ -1,4 +1,4 @@
-from DBHelper.database import Database
+from DBHelper import Database
 
 
 if __name__ == "__main__":

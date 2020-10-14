@@ -1,6 +1,6 @@
 from os import environ as env
 from flask import Flask, Response, render_template, request, redirect
-from DBHelper.database import Database
+from DBHelper import Database
 from Utils.db_functions import FUNCS
 from Utils.generator import generate_playlist
 

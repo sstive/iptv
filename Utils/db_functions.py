@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from Classes.channel import Channel
-from DBHelper.database import Database
+from DBHelper import Database
 from Config.variables import THEMES
 
 

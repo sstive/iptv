@@ -35,8 +35,6 @@ class Updater(task.Task):
 
         print("Executing source updater...")
 
-        # TODO: update themes in database
-
         # Getting objects from database #
         print("\t- Getting objects from database...", end=' ')
         themes = self.DB.run('themes.get')

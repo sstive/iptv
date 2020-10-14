@@ -27,7 +27,7 @@ def themes_add(db: Database, **kwargs):
     :key theme: name of theme, should be str
     :return: id of added theme
     """
-    return db.insert('themes', name=kwargs['theme'], _return_id=True)
+    return db.insert_or_update('themes', name=kwargs['theme'], _return_id=True)
 
 
 def themes_add_default(db: Database):

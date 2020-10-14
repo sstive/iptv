@@ -1,4 +1,5 @@
 import urllib.request
+import requests
 from Utils.utils import replace_symbols
 from Config.variables import QUALITIES, THEMES
 
@@ -158,8 +159,18 @@ class Channel:
         for i in range(0, len(self.urls)):
             for url in self.urls[i]:
                 try:
-                    if urllib.request.urlopen(url, timeout=3).getcode() == 200:
-                        continue
+                    ext = url.split('?')[0].split('/')[-1].split('.')
+                    if len(ext) > 1 and ext[1].lower() in ['m3u', 'm3u8']:
+                        req = requests.get(url, timeout=3)
+
+                        if req.status_code == 200:
+                            lines = req.text.split('\n')
+                            if len(lines) > 1 and len(lines[0]) >= 7 and lines[0][:7] == '#EXTM3U':
+                                continue
+                    else:
+                        req = urllib.request.urlopen(url, timeout=3)
+                        if req.status == 200 and req.length is None:
+                            continue
                 except Exception:
                     pass
 
@@ -195,10 +206,10 @@ class Channel:
     @staticmethod
     def fix_name(name: str):
         # Replacing symbols
-        name = replace_symbols(name, ('_', ' '))
+        name = replace_symbols(name, ('_', ' '), ('|', ' '), '(ForkPlayer)')
 
         # Finding quality
-        words = name.split()
+        words = name.strip().split()
         fixed_words = replace_symbols(name, *QUALITIES['symbols']).lower().split()
         quality = 0
         found = False
@@ -230,5 +241,12 @@ class Channel:
             if found:
                 break
 
-        return ' '.join(words), quality
+        # Formatting name
+        name = ' '.join(words)
+        if len(name) > 5:
+            name.title()
+        else:
+            name.upper()
+
+        return name, quality
     # ------ #

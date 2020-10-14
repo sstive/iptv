@@ -1,18 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Add - IPTV</title>
 
     <link rel="shortcut icon" href="/files/images/favicon.ico" type="image/x-icon">
+    <style>
+        input {
+            width: 500px;
+            height: 40px;
+            margin: 5px;
+        }
+        input.check {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
 </head>
 <body>
     <div align="center">
         <h1>Add playlist</h1>
         <form action="/add_playlist" method="POST">
             <input required type="number" name="quality" placeholder="quality" min="0" max="4"><br/>
-            <input required type="text" name="channels" placeholder="channels"><br/>
-            <input type="checkbox" name="del_channels">Delete channels<br/>
+            <input required type="text" name="channels" placeholder="channels" width="500px" height="100px"><br/>
+            <input type="checkbox" name="del_channels" class="check">Delete channels<br/>
             <input required type="text" name="token" placeholder="Token"><br/>
             <input type="submit">
         </form>

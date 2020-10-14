@@ -9,10 +9,10 @@ def load(uri: str):
     try:
         req = requests.get(uri, timeout=5)
     except Exception:
-        return
+        return None
 
     if req.status_code != 200:
-        return
+        return None
 
     lines = req.text.split('\n')
     channels = []

@@ -5,6 +5,9 @@ from Utils import parser, utils
 from Classes import Channel, task
 
 
+BANNED_BEGIN_NAME = ['=', '-', '!', '_']
+
+
 class Updater(task.Task):
     # Task id
     tid = 1
@@ -59,7 +62,8 @@ class Updater(task.Task):
             playlist = parser.load(source['url'])
 
             if playlist is None:
-                source['last_online'] = source['last_online'].strftime("%Y-%m-%d")
+                if source['last_online'] is not None:
+                    source['last_online'] = source['last_online'].strftime("%Y-%m-%d")
                 continue
 
             # Updating sources
@@ -71,6 +75,10 @@ class Updater(task.Task):
                 # TODO: Refactor
                 # Normalising name
                 title, quality = Channel.fix_name(segment['title'])
+
+                # Removing useless channels
+                if title[0] in BANNED_BEGIN_NAME:
+                    continue
 
                 # Searching channel in array
                 found = False

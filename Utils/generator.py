@@ -1,3 +1,4 @@
+from Classes import Channel
 from DBHelper import Database
 from os import environ as env
 
@@ -7,7 +8,7 @@ def channel_to_m3u8(channel, themes, quality, remove):
     resp = ""
     url = channel.get_url(quality)
 
-    # Adding or not empty urls
+    # Adding empty url (or not)
     if url is None:
         if remove:
             return ""
@@ -31,7 +32,14 @@ def generate_playlist(pl_id: int, db: Database):
 
     # Getting objects from database
     themes = db.run('themes.get')
-    channels = db.run('channels.get')
+
+    # Getting channels from database
+    channels = []
+    # Filling gaps with None type
+    for db_channel in db.select('channels', '*', "ORDER BY id"):
+        while len(channels) <= db_channel[0]:
+            channels.append(None)
+        channels[db_channel[0]] = Channel(*db_channel)
 
     if pl_id == 0:
         # Default playlist
@@ -56,7 +64,8 @@ def generate_playlist(pl_id: int, db: Database):
         # Removing channel from list to avoid duplicating
         channels[ch_id] = None
 
-        resp += channel_to_m3u8(channel, themes, quality, remove)
+        if channel is not None:
+            resp += channel_to_m3u8(channel, themes, quality, False)
 
     # Adding other channels
     for channel in channels:

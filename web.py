@@ -92,7 +92,7 @@ def db_tables(table):
     data = db.select(table, '*')
     db.end()
 
-    return render_template('table.html', data=data, columns=tables[table])
+    return render_template('table.html', data=data, columns=tables[table], table=table)
 
 
 # ============================ #

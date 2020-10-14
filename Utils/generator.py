@@ -1,4 +1,4 @@
-from DBHelper import Database
+from DBHelper.database import Database
 from os import environ as env
 
 

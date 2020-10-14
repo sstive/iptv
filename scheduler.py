@@ -1,4 +1,4 @@
-from DBHelper import Database
+from DBHelper.database import Database
 from Tasks import TASKS
 
 # Custom functions for database

@@ -13,7 +13,7 @@ def channel_to_m3u8(channel, themes, quality, remove):
         if remove:
             return ""
         else:
-            url = env['URL'] + '/files/images/not_found.jpg'
+            url = env['URL'] + '/files/images/not_found.png'
 
     # Adding theme
     if channel.theme is not None:

@@ -1,7 +1,6 @@
 import requests
 import shlex
 
-
 EMPTY_CHANNEL = {'title': "", 'uri': "", 'group_title': ""}
 
 
@@ -11,7 +10,7 @@ def load(uri: str):
     except Exception:
         return None
 
-    if req.status_code != 200:
+    if req.status_code // 100 != 2:
         return None
 
     lines = req.text.split('\n')
@@ -69,3 +68,17 @@ def load(uri: str):
             filled = False
 
     return channels
+
+
+def get_chunks(raw_m3u8: str):
+    chunks = []
+    lines = raw_m3u8.replace('\r', '').split('\n')
+
+    if len(lines) == 0 or lines[0] != '#EXTM3U':
+        return []
+
+    for line in lines:
+        if len(line) > 1:
+            if line[0] != '#':
+                chunks.append(line)
+    return chunks

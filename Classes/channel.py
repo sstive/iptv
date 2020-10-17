@@ -1,6 +1,4 @@
-import urllib.request
-import requests
-from Utils.utils import replace_symbols
+from Utils.utils import replace_symbols, check_url
 from Config.variables import QUALITIES, THEMES
 
 
@@ -158,23 +156,8 @@ class Channel:
     def check(self):
         for i in range(0, len(self.urls)):
             for url in self.urls[i]:
-                try:
-                    ext = url.split('?')[0].split('/')[-1].split('.')
-                    if len(ext) > 1 and ext[1].lower() in ['m3u', 'm3u8']:
-                        req = requests.get(url, timeout=3)
-
-                        if req.status_code == 200:
-                            lines = req.text.split('\n')
-                            if len(lines) > 1 and len(lines[0]) >= 7 and lines[0][:7] == '#EXTM3U':
-                                continue
-                    else:
-                        req = urllib.request.urlopen(url, timeout=3)
-                        if req.status == 200 and req.length is None:
-                            continue
-                except Exception:
-                    pass
-
-                self.urls[i].remove(url)
+                if not check_url(url):
+                    self.urls[i].remove(url)
         self.__set_online__()
 
     # Convert channel to dict

@@ -19,7 +19,7 @@ class Updater(task.Task):
     def thread_cleaner(self):
         while len(self.threads) > 0 or self.threads_started:
             if not self.threads_started:
-                print(f'\r\t- Checking urls... Done! \t{len(self.threads)}', end='')
+                print(f'\r\t- Checking urls... \t{700 - len(self.threads)}/700', end='')
             i = 0
             time.sleep(1)
             while i < len(self.threads):

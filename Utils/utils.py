@@ -1,3 +1,7 @@
+import urllib.request
+from .parser import get_chunks
+
+
 def replace_symbols(s: str, *chars):
     for char in chars:
         if type(char) is tuple:
@@ -20,3 +24,44 @@ def fix_theme(theme):
         return None
 
     return replace_symbols(theme, ('-', ' '), ('_', ' '))
+
+
+def check_url(url):
+    try:
+        req = urllib.request.urlopen(url, timeout=3)
+
+        # Getting chunks urls, if this is not text file, we catch exception
+        try:
+            urls = get_chunks(req.read(10240).decode('UTF-8'))
+        except UnicodeDecodeError:
+            return True
+
+        # If no urls in file or this is not m3u8
+        if len(urls) == 0:
+            return False
+
+        # Checking chunks urls
+        for chunk_url in urls:
+            # By default checking_url equals to chunk_url
+            checking_url = chunk_url
+
+            # Chunk url may be not full (e.g. "/page1/something" or "chunk/1")
+            parts = chunk_url.split('/')
+            # If chunk url /foo/bar
+            if parts[0] == '':
+                checking_url = '/'.join(url.split('/')[:3]) + chunk_url
+            # If chunk url foo/bar
+            elif ':' not in parts[0]:
+                if url[-1] == '/':
+                    checking_url = url + chunk_url
+                else:
+                    checking_url = url + '/' + chunk_url
+            # Checking url
+            if not check_url(checking_url):
+                return False
+        # All urls is ok
+        return True
+
+    # If something went wrong
+    except Exception:
+        return False

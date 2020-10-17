@@ -6,7 +6,7 @@ from Classes import Channel, task
 
 
 BANNED_BEGIN_NAME = ['=', '-', '!', '_']
-
+MAX_THREADS = 500
 
 class Updater(task.Task):
     # Task id
@@ -19,7 +19,7 @@ class Updater(task.Task):
     def thread_cleaner(self):
         while len(self.threads) > 0 or self.threads_started:
             if not self.threads_started:
-                print(f'\r\t- Checking urls... \t{700 - len(self.threads)}/700', end='')
+                print(f'\r\t- Checking urls... \t{MAX_THREADS - len(self.threads)}/{MAX_THREADS}', end='')
             i = 0
             time.sleep(1)
             while i < len(self.threads):
@@ -122,7 +122,7 @@ class Updater(task.Task):
             done += 1
             print(f'\r\t- Checking urls... \t{done}/{len(channels)} \t{len(self.threads)}', end='')
             # Waiting for vacant space
-            while threading.active_count() >= 700:
+            while threading.active_count() >= MAX_THREADS:
                 time.sleep(1)
             # Adding thread
             checker = threading.Thread(target=channel.check)

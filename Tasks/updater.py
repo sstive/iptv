@@ -1,12 +1,16 @@
 import time
 import threading
+from os import environ as env
 from datetime import datetime
 from Utils import parser, utils
 from Classes import Channel, task
 
 
 BANNED_BEGIN_NAME = ['=', '-', '!', '_']
-MAX_THREADS = 500
+MAX_THREADS = 256
+if 'MAX_THREADS' in env.keys():
+    MAX_THREADS = env['MAX_THREADS']
+
 
 class Updater(task.Task):
     # Task id
@@ -110,7 +114,6 @@ class Updater(task.Task):
         print("\r\t- Getting sources... Done!")
 
         # Checking channels urls #
-
         # Starting threads
         self.threads_started = True
         thread_cleaner = threading.Thread(target=self.thread_cleaner)

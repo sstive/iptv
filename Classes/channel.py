@@ -160,7 +160,7 @@ class Channel:
                     self.urls[i].remove(url)
 
         self.__set_online__()
-        return True
+        return self.name
 
     # Convert channel to dict
     def get_dict(self):

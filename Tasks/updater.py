@@ -1,5 +1,3 @@
-import time
-import threading
 from multiprocessing.pool import ThreadPool
 from datetime import datetime
 from Utils import parser, utils
@@ -13,27 +11,10 @@ class Updater(task.Task):
     # Task id #
     tid = 1
 
-    # Threads #
-    threads = []
-    threads_started = False
-
     # Database #
     themes = []
     sources = []
     channels = []
-
-    def thread_cleaner(self):
-        while len(self.threads) > 0 or self.threads_started:
-            if not self.threads_started:
-                print(f'\r\t- Checking urls... \t{self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
-            i = 0
-            time.sleep(1)
-            while i < len(self.threads):
-                if not self.threads[i].is_alive():
-                    del self.threads[i]
-                else:
-                    i += 1
-    # ------- #
 
     def _execute(self):
         print("Executing source updater...")
@@ -123,7 +104,8 @@ class Updater(task.Task):
                             self.themes[theme_id] = theme
                     # Creating new channel
                     self.channels.append(
-                        Channel(name=title, theme=theme_id, url=(segment['uri'], quality), source_id=source['id']))
+                        Channel(name=title, theme=theme_id, url=(segment['uri'], quality), source_id=source['id'])
+                    )
 
         # Disconnecting from database
         self.DB.end()
@@ -133,11 +115,8 @@ class Updater(task.Task):
     # Checking channels urls #
     def check_urls(self):
         pool = ThreadPool(self.MAX_THREADS)
-        res = pool.map(lambda ch: ch.check(), self.channels)
-
-        while len(res) < len(self.channels):
-            print(f'\r\t- Checking urls... {len(res)}/{len(self.channels)}', end='')
-
+        pool.map(lambda ch: print('\r\t- Checking urls...', ch.check(), end=' '), self.channels)
+        pool.close()
         pool.join()
         print(f'\r\t- Checking urls... Done!')
 

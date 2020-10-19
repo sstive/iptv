@@ -41,6 +41,7 @@ def check_url(url):
             return False
 
         # Checking chunks urls
+        working = 0
         for chunk_url in urls:
             # By default checking_url equals to chunk_url
             checking_url = chunk_url
@@ -57,8 +58,13 @@ def check_url(url):
                 else:
                     checking_url = url + '/' + chunk_url
             # Checking url
-            if not check_url(checking_url):
-                return False
+            if check_url(checking_url):
+                working += 1
+
+        # Less than 75% is ok
+        if working / len(urls) < 0.75:
+            return False
+
         # All urls is ok
         return True
 

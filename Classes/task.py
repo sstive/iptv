@@ -6,12 +6,12 @@ class Task:
     tid = 0
     # Database
     DB = None
+    # Max number of threads
+    MAX_THREADS = 256
 
-    def __del__(self):
-        # Changing last executing date
-        self.DB.begin()
-
-        pass
+    def __init__(self):
+        if 'MAX_THREADS' in env.keys():
+            self.MAX_THREADS = int(env['MAX_THREADS'])
 
     def add_database(self, database):
         self.DB = database

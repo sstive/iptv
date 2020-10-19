@@ -158,7 +158,9 @@ class Channel:
             for url in self.urls[i]:
                 if not check_url(url):
                     self.urls[i].remove(url)
+
         self.__set_online__()
+        return True
 
     # Convert channel to dict
     def get_dict(self):

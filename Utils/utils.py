@@ -40,6 +40,13 @@ def check_url(url):
         if len(urls) == 0:
             return False
 
+        # deleting some urls because too much of them
+        while len(urls) > 20:
+            i = 0
+            while i < len(urls):
+                del urls[i]
+                i += 2
+
         # Checking chunks urls
         working = 0
         for chunk_url in urls:

@@ -1,4 +1,3 @@
-from multiprocessing.pool import ThreadPool
 from datetime import datetime
 from Utils import parser, utils
 from Classes import Channel, task
@@ -114,10 +113,12 @@ class Updater(task.Task):
 
     # Checking channels urls #
     def check_urls(self):
-        pool = ThreadPool(self.MAX_THREADS)
-        pool.map(lambda ch: print('\r\t- Checking urls...', ch.check(), end=' '), self.channels)
-        pool.close()
-        pool.join()
+        # TODO: Add threads
+        progress = 0
+        for channel in self.channels:
+            progress += 1
+            print(f'\r\t- Checking urls... {progress}/{len(self.channels)}', end=' ')
+            channel.check()
         print(f'\r\t- Checking urls... Done!')
 
     def save_databases(self):

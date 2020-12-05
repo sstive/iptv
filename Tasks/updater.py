@@ -14,20 +14,23 @@ class Updater(task.Task):
 
     # Threads #
     threads = []
-    threads_started = False
 
     # Database #
     themes = []
     sources = []
     channels = []
 
-    def clean_threads(self):
-            i = 0
-            while i < len(self.threads):
-                if not self.threads[i].is_alive():
-                    del self.threads[i]
-                else:
-                    i += 1
+    def clean_threads(self, use_timeout=False):
+        i = 0
+        while i < len(self.threads):
+            if not self.threads[i].is_alive():
+                self.threads[i].join()
+                del self.threads[i]
+            elif use_timeout:
+                self.threads[i].join(3)
+                del self.threads[i]
+            else:
+                i += 1
     # ------- #
 
     def _execute(self):
@@ -128,11 +131,12 @@ class Updater(task.Task):
 
     # Checking channels urls #
     def check_urls(self):
+        print('\t- Checking urls...')
         done = 0
         for channel in self.channels:
             # Printing progress
             done += 1
-            print(f'\r\t- Checking urls... \t{done}/{len(self.channels)} \t{len(self.threads)}', end='')
+            print(f'\r\t\t- Adding treads ({len(self.threads)} is active): \t{done}/{len(self.channels)}', end='')
 
             # Waiting for vacant space
             while threading.active_count() >= self.MAX_THREADS:
@@ -140,18 +144,19 @@ class Updater(task.Task):
                 self.clean_threads()
 
             # Adding thread
-            checker = threading.Thread(target=channel.check)
+            checker = threading.Thread(target=channel.check, daemon=True)
             self.threads.append(checker)
+            del checker
             self.threads[-1].start()
 
         # Waiting for ending
+        print()
         while len(self.threads) > 0:
             time.sleep(1)
-            print(f'\r\t- Checking urls... \t{self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
-            self.clean_threads()
+            print(f'\r\t\t- Checking {self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
+            self.clean_threads(len(self.threads) <= 10)
 
-        print(f'\r\t- Checking urls... \t{self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
-        print(f'\r\t- Checking urls... Done!')
+        print(f'\n\t- Done!')
 
     def save_databases(self):
         # Starting db connection

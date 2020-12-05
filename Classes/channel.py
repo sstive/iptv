@@ -165,8 +165,7 @@ class Channel:
                     self.urls[i].remove(url)
 
         self.__set_online__()
-        checked = True
-        return self.name
+        self.checked = True
 
     # Convert channel to dict
     def get_dict(self):

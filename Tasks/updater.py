@@ -132,15 +132,19 @@ class Updater(task.Task):
     # Checking channels urls #
     def check_urls(self):
         print('\t- Checking urls...')
+
+        # Checking delay
+        delay = self.MAX_THREADS // 100
+
         done = 0
         for channel in self.channels:
             # Printing progress
             done += 1
-            print(f'\r\t\t- Adding treads ({len(self.threads)} is active): \t{done}/{len(self.channels)}', end='')
+            print(f'\r\t\t- Adding treads ({len(self.threads)} is active): {done}/{len(self.channels)}', end='')
 
             # Waiting for vacant space
             while threading.active_count() >= self.MAX_THREADS:
-                time.sleep(1)
+                time.sleep(delay)
                 self.clean_threads()
 
             # Adding thread
@@ -152,7 +156,7 @@ class Updater(task.Task):
         # Waiting for ending
         print()
         while len(self.threads) > 0:
-            time.sleep(1)
+            time.sleep(delay)
             print(f'\r\t\t- Checking {self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
             self.clean_threads(len(self.threads) <= 10)
 

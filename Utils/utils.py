@@ -12,7 +12,7 @@ def replace_symbols(s: str, *chars):
 
 
 def fix_theme(theme):
-    if len(theme) < 3:
+    if len(theme) < 2:
         return None
 
     theme = theme.strip()
@@ -26,7 +26,10 @@ def fix_theme(theme):
     return replace_symbols(theme, ('-', ' '), ('_', ' '))
 
 
-def check_url(url):
+def check_url(url, recursion_level=0):
+    if recursion_level > 3:
+        return False
+
     try:
         req = urllib.request.urlopen(url, timeout=3)
 
@@ -65,7 +68,7 @@ def check_url(url):
                 else:
                     checking_url = url + '/' + chunk_url
             # Checking url
-            if check_url(checking_url):
+            if check_url(checking_url, recursion_level+1):
                 working += 1
 
         # Less than 75% is ok

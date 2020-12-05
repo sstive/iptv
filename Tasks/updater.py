@@ -1,3 +1,5 @@
+import time
+import threading
 from datetime import datetime
 from Utils import parser, utils
 from Classes import Channel, task
@@ -10,10 +12,23 @@ class Updater(task.Task):
     # Task id #
     tid = 1
 
+    # Threads #
+    threads = []
+    threads_started = False
+
     # Database #
     themes = []
     sources = []
     channels = []
+
+    def clean_threads(self):
+            i = 0
+            while i < len(self.threads):
+                if not self.threads[i].is_alive():
+                    del self.threads[i]
+                else:
+                    i += 1
+    # ------- #
 
     def _execute(self):
         print("Executing source updater...")
@@ -113,12 +128,29 @@ class Updater(task.Task):
 
     # Checking channels urls #
     def check_urls(self):
-        # TODO: Add threads
-        progress = 0
+        done = 0
         for channel in self.channels:
-            progress += 1
-            print(f'\r\t- Checking urls... {progress}/{len(self.channels)}', end=' ')
-            channel.check()
+            # Printing progress
+            done += 1
+            print(f'\r\t- Checking urls... \t{done}/{len(self.channels)} \t{len(self.threads)}', end='')
+
+            # Waiting for vacant space
+            while threading.active_count() >= self.MAX_THREADS:
+                time.sleep(1)
+                self.clean_threads()
+
+            # Adding thread
+            checker = threading.Thread(target=channel.check)
+            self.threads.append(checker)
+            self.threads[-1].start()
+
+        # Waiting for ending
+        while len(self.threads) > 0:
+            time.sleep(1)
+            print(f'\r\t- Checking urls... \t{self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
+            self.clean_threads()
+
+        print(f'\r\t- Checking urls... \t{self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
         print(f'\r\t- Checking urls... Done!')
 
     def save_databases(self):

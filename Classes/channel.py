@@ -4,6 +4,8 @@ from Config.variables import QUALITIES, THEMES
 
 class Channel:
 
+    checked = False
+
     def __init__(self, *db_params, **params):
         """
         Class for channel, contain info about channel and functions for it.
@@ -138,6 +140,9 @@ class Channel:
 
     # Convert urls to string for database
     def get_urls(self):
+        if not self.checked:
+            return ";;;;"
+
         urls = ""
         for q in self.urls:
             urls += ','.join(q)
@@ -160,6 +165,7 @@ class Channel:
                     self.urls[i].remove(url)
 
         self.__set_online__()
+        checked = True
         return self.name
 
     # Convert channel to dict

@@ -157,8 +157,8 @@ class Updater(task.Task):
         print()
         while len(self.threads) > 0:
             time.sleep(delay)
-            print(f'\r\t\t- Checking {self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
             self.clean_threads(len(self.threads) <= 10)
+            print(f'\r\t\t- Checking {self.MAX_THREADS - len(self.threads)}/{self.MAX_THREADS}', end='')
 
         print(f'\n\t- Done!')
 
